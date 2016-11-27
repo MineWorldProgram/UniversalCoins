@@ -36,8 +36,9 @@ public class ItemUCCard extends Item {
 	}
 
 	@Override
-	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos,
+	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos,
 			EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+		ItemStack stack = player.getHeldItem(hand);
 		if (world.isRemote)
 			return EnumActionResult.FAIL;
 		if (stack.getTagCompound() == null) {
@@ -46,7 +47,7 @@ public class ItemUCCard extends Item {
 		long accountCoins = UniversalAccounts.getInstance()
 				.getAccountBalance(stack.getTagCompound().getString("Account"));
 		DecimalFormat formatter = new DecimalFormat("###,###,###,###,###,###,###");
-		player.addChatMessage(new TextComponentString(
+		player.sendMessage(new TextComponentString(
 				I18n.translateToLocal("item.card.balance") + " " + formatter.format(accountCoins)));
 		return EnumActionResult.SUCCESS;
 	}

@@ -1,6 +1,7 @@
 package universalcoins.items;
 
 import java.util.List;
+import java.util.Objects;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemModelMesher;
@@ -32,8 +33,9 @@ public class ItemUCSign extends ItemSign {
 	}
 
 	@Override
-	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos,
+	public EnumActionResult onItemUse(EntityPlayer playerIn, World worldIn, BlockPos pos,
 			EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+		ItemStack stack = playerIn.getHeldItem(hand);
 		if (facing == EnumFacing.DOWN) {
 			return EnumActionResult.FAIL;
 		} else if (!worldIn.getBlockState(pos).getBlock().getMaterial(null).isSolid()) {
@@ -47,7 +49,7 @@ public class ItemUCSign extends ItemSign {
 				return EnumActionResult.SUCCESS;
 			} else {
 				if (facing == EnumFacing.UP) {
-					int i = MathHelper.floor_double((double) ((playerIn.rotationYaw + 180.0F) * 16.0F / 360.0F) + 0.5D)
+					int i = MathHelper.floor((double) ((playerIn.rotationYaw + 180.0F) * 16.0F / 360.0F) + 0.5D)
 							& 15;
 					worldIn.setBlockState(pos, UniversalCoins.proxy.standing_ucsign.getDefaultState()
 							.withProperty(BlockUCStandingSign.ROTATION, Integer.valueOf(i)), 3);
@@ -56,7 +58,7 @@ public class ItemUCSign extends ItemSign {
 							.withProperty(BlockUCWallSign.FACING, facing), 3);
 				}
 
-				--stack.stackSize;
+				stack.setCount(stack.getCount() - 1);
 				TileEntity tileentity = worldIn.getTileEntity(pos);
 
 				if (tileentity instanceof TileUCSign) {
@@ -73,10 +75,10 @@ public class ItemUCSign extends ItemSign {
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean bool) {
 		if (stack.hasTagCompound()) {
 			NBTTagCompound tagCompound = stack.getTagCompound();
-			if (tagCompound.getString("BlockIcon") == "") {
+			if (Objects.equals(tagCompound.getString("BlockIcon"), "")) {
 				NBTTagList textureList = tagCompound.getTagList("Inventory", Constants.NBT.TAG_COMPOUND);
 				byte slot = tagCompound.getByte("Texture");
-				ItemStack textureStack = ItemStack.loadItemStackFromNBT(tagCompound);
+				ItemStack textureStack = new ItemStack(tagCompound);
 				ItemModelMesher imm = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
 				String blockIcon = "";// imm.getItemModel(textureStack).getTexture().getIconName();
 										// //TODO fix this

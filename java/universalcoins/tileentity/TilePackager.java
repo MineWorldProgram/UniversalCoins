@@ -89,13 +89,13 @@ public class TilePackager extends TileEntity implements IInventory {
 			packageSize = 0;
 			for (int i = 0; i < 4; i++) {
 				if (inventory[i] != null) {
-					if (worldObj.getPlayerEntityByName(playerName).inventory.getFirstEmptyStack() != -1) {
-						worldObj.getPlayerEntityByName(playerName).inventory.addItemStackToInventory(inventory[i]);
+					if (world.getPlayerEntityByName(playerName).inventory.getFirstEmptyStack() != -1) {
+						world.getPlayerEntityByName(playerName).inventory.addItemStackToInventory(inventory[i]);
 					} else {
 						// spawn in world
-						EntityItem entityItem = new EntityItem(worldObj, pos.getX(), pos.getY(), pos.getZ(),
+						EntityItem entityItem = new EntityItem(world, pos.getX(), pos.getY(), pos.getZ(),
 								inventory[i]);
-						worldObj.spawnEntityInWorld(entityItem);
+						world.spawnEntity(entityItem);
 					}
 					inventory[i] = null;
 				}
@@ -105,13 +105,13 @@ public class TilePackager extends TileEntity implements IInventory {
 			packageSize = 1;
 			for (int i = 0; i < 2; i++) {
 				if (inventory[i] != null) {
-					if (worldObj.getPlayerEntityByName(playerName).inventory.getFirstEmptyStack() != -1) {
-						worldObj.getPlayerEntityByName(playerName).inventory.addItemStackToInventory(inventory[i]);
+					if (world.getPlayerEntityByName(playerName).inventory.getFirstEmptyStack() != -1) {
+						world.getPlayerEntityByName(playerName).inventory.addItemStackToInventory(inventory[i]);
 					} else {
 						// spawn in world
-						EntityItem entityItem = new EntityItem(worldObj, pos.getX(), pos.getY(), pos.getZ(),
+						EntityItem entityItem = new EntityItem(world, pos.getX(), pos.getY(), pos.getZ(),
 								inventory[i]);
-						worldObj.spawnEntityInWorld(entityItem);
+						world.spawnEntity(entityItem);
 					}
 					inventory[i] = null;
 				}
@@ -123,7 +123,7 @@ public class TilePackager extends TileEntity implements IInventory {
 	}
 
 	public void inUseCleanup() {
-		if (worldObj.isRemote)
+		if (world.isRemote)
 			return;
 		inUse = false;
 	}
@@ -148,7 +148,7 @@ public class TilePackager extends TileEntity implements IInventory {
 
 	public void checkCard() {
 		cardAvailable = false;
-		if (inventory[itemCardSlot] != null && inventory[itemCardSlot].hasTagCompound() && !worldObj.isRemote) {
+		if (inventory[itemCardSlot] != null && inventory[itemCardSlot].hasTagCompound() && !world.isRemote) {
 			String account = inventory[itemCardSlot].getTagCompound().getString("Account");
 			long accountBalance = UniversalAccounts.getInstance().getAccountBalance(account);
 			if (accountBalance > packageCost[packageSize]) {
@@ -158,8 +158,8 @@ public class TilePackager extends TileEntity implements IInventory {
 	}
 
 	@Override
-	public boolean isUseableByPlayer(EntityPlayer entityplayer) {
-		return worldObj.getTileEntity(pos) == this
+	public boolean isUsableByPlayer(EntityPlayer entityplayer) {
+		return world.getTileEntity(pos) == this
 				&& entityplayer.getDistanceSq(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) < 64;
 	}
 
@@ -190,7 +190,7 @@ public class TilePackager extends TileEntity implements IInventory {
 
 	public void updateTE() {
 		markDirty();
-		worldObj.notifyBlockUpdate(getPos(), worldObj.getBlockState(pos), worldObj.getBlockState(pos), 3);
+		world.notifyBlockUpdate(getPos(), world.getBlockState(pos), world.getBlockState(pos), 3);
 	}
 
 	@Override
@@ -229,7 +229,7 @@ public class TilePackager extends TileEntity implements IInventory {
 			NBTTagCompound tag = (NBTTagCompound) tagList.getCompoundTagAt(i);
 			byte slot = tag.getByte("Slot");
 			if (slot >= 0 && slot < inventory.length) {
-				inventory[slot] = ItemStack.loadItemStackFromNBT(tag);
+				inventory[slot] = new ItemStack(tag);
 			}
 		}
 		try {
@@ -296,11 +296,11 @@ public class TilePackager extends TileEntity implements IInventory {
 	public ItemStack decrStackSize(int slot, int size) {
 		ItemStack stack = getStackInSlot(slot);
 		if (stack != null) {
-			if (stack.stackSize <= size) {
+			if (stack.getCount() <= size) {
 				inventory[slot] = null;
 			} else {
 				stack = stack.splitStack(size);
-				if (stack.stackSize == 0) {
+				if (stack.getCount() == 0) {
 					inventory[slot] = null;
 				}
 			}
@@ -315,19 +315,19 @@ public class TilePackager extends TileEntity implements IInventory {
 		inventory[itemOutputSlot] = null;
 		if (coinSum > UniversalCoins.coinValues[4]) {
 			inventory[itemOutputSlot] = new ItemStack(UniversalCoins.proxy.obsidian_coin);
-			inventory[itemOutputSlot].stackSize = (int) Math.min(coinSum / UniversalCoins.coinValues[4], 64);
+			inventory[itemOutputSlot].setCount((int) Math.min(coinSum / UniversalCoins.coinValues[4], 64));
 		} else if (coinSum > UniversalCoins.coinValues[3]) {
 			inventory[itemOutputSlot] = new ItemStack(UniversalCoins.proxy.diamond_coin);
-			inventory[itemOutputSlot].stackSize = (int) Math.min(coinSum / UniversalCoins.coinValues[3], 64);
+			inventory[itemOutputSlot].setCount((int) Math.min(coinSum / UniversalCoins.coinValues[3], 64));
 		} else if (coinSum > UniversalCoins.coinValues[2]) {
 			inventory[itemOutputSlot] = new ItemStack(UniversalCoins.proxy.emerald_coin);
-			inventory[itemOutputSlot].stackSize = (int) Math.min(coinSum / UniversalCoins.coinValues[2], 64);
+			inventory[itemOutputSlot].setCount((int) Math.min(coinSum / UniversalCoins.coinValues[2], 64));
 		} else if (coinSum > UniversalCoins.coinValues[1]) {
 			inventory[itemOutputSlot] = new ItemStack(UniversalCoins.proxy.gold_coin);
-			inventory[itemOutputSlot].stackSize = (int) Math.min(coinSum / UniversalCoins.coinValues[1], 64);
+			inventory[itemOutputSlot].setCount((int) Math.min(coinSum / UniversalCoins.coinValues[1], 64));
 		} else if (coinSum > UniversalCoins.coinValues[0]) {
 			inventory[itemOutputSlot] = new ItemStack(UniversalCoins.proxy.iron_coin);
-			inventory[itemOutputSlot].stackSize = (int) Math.min(coinSum / UniversalCoins.coinValues[0], 64);
+			inventory[itemOutputSlot].setCount((int) Math.min(coinSum / UniversalCoins.coinValues[0], 64));
 		}
 	}
 
@@ -360,22 +360,22 @@ public class TilePackager extends TileEntity implements IInventory {
 					break;
 				}
 			}
-			long depositAmount = Math.min(stack.stackSize, (Long.MAX_VALUE - coinSum) / coinValue);
-			inventory[slot].stackSize -= depositAmount;
+			long depositAmount = Math.min(stack.getCount(), (Long.MAX_VALUE - coinSum) / coinValue);
+			inventory[slot].setCount((int)(inventory[slot].getCount() - depositAmount));
 			coinSum += depositAmount * coinValue;
-			if (inventory[slot].stackSize == 0) {
+			if (inventory[slot].getCount() == 0) {
 				inventory[slot] = null;
 			}
 		}
-		if (slot == itemCardSlot && !worldObj.isRemote) {
+		if (slot == itemCardSlot && !world.isRemote) {
 			checkCard();
 		}
 	}
 
 	public void sendPackage(String packageTarget) {
-		if (worldObj.isRemote)
+		if (world.isRemote)
 			return;
-		EntityPlayer player = worldObj.getPlayerEntityByName(packageTarget);
+		EntityPlayer player = world.getPlayerEntityByName(packageTarget);
 		if (player != null) {
 			if (player.inventory.getFirstEmptyStack() != -1) {
 				player.inventory.addItemStackToInventory(inventory[itemPackageInputSlot]);
@@ -384,11 +384,11 @@ public class TilePackager extends TileEntity implements IInventory {
 				float rx = rand.nextFloat() * 0.8F + 0.1F;
 				float ry = rand.nextFloat() * 0.8F + 0.1F;
 				float rz = rand.nextFloat() * 0.8F + 0.1F;
-				EntityItem entityItem = new EntityItem(worldObj, player.posX + rx, player.posY + ry, player.posZ + rz,
+				EntityItem entityItem = new EntityItem(world, player.posX + rx, player.posY + ry, player.posZ + rz,
 						inventory[itemPackageInputSlot]);
-				worldObj.spawnEntityInWorld(entityItem);
+				world.spawnEntity(entityItem);
 			}
-			player.addChatMessage(
+			player.sendMessage(
 					new TextComponentString("�c" + playerName + I18n.translateToLocal("packager.message.sent")));
 			inventory[itemPackageInputSlot] = null;
 		}
@@ -397,7 +397,7 @@ public class TilePackager extends TileEntity implements IInventory {
 	public void playerLookup(String player, boolean tabPressed) {
 		if (tabPressed) {
 			List<String> players = new ArrayList<String>();
-			for (EntityPlayer p : (List<EntityPlayer>) worldObj.playerEntities) {
+			for (EntityPlayer p : (List<EntityPlayer>) world.playerEntities) {
 				players.add(p.getDisplayName().getUnformattedText());
 			}
 			String test[] = new String[1];
@@ -407,7 +407,7 @@ public class TilePackager extends TileEntity implements IInventory {
 				packageTarget = match.get(0).toString();
 			}
 		} else {
-			if (worldObj.getPlayerEntityByName(player) != null) {
+			if (world.getPlayerEntityByName(player) != null) {
 				packageTarget = player;
 			} else {
 				packageTarget = "";
@@ -470,5 +470,16 @@ public class TilePackager extends TileEntity implements IInventory {
 	public void clear() {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public boolean isEmpty() {
+		for (ItemStack itemStack : inventory) {
+			if (itemStack != null && !itemStack.isEmpty()) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 }

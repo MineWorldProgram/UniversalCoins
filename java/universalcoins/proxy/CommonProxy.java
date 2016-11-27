@@ -58,17 +58,17 @@ public class CommonProxy {
 
 	public void registerBlocks() {
 		//GameRegistry.register(tradestation, new ResourceLocation("universalcoins:tradestation"));
-		GameRegistry.registerBlock(tradestation, tradestation.getUnlocalizedName().substring(5));
-		GameRegistry.registerBlock(safe, safe.getUnlocalizedName().substring(5));
-		GameRegistry.registerBlock(signalblock, signalblock.getUnlocalizedName().substring(5));
-		GameRegistry.registerBlock(vendor, vendor.getUnlocalizedName().substring(5));
-		GameRegistry.registerBlock(vendor_frame, vendor_frame.getUnlocalizedName().substring(5));
-		GameRegistry.registerBlock(packager, packager.getUnlocalizedName().substring(5));
-		GameRegistry.registerBlock(standing_ucsign, standing_ucsign.getUnlocalizedName().substring(5));
-		GameRegistry.registerBlock(wall_ucsign, wall_ucsign.getUnlocalizedName().substring(5));
-		GameRegistry.registerBlock(power_transmitter, power_transmitter.getUnlocalizedName().substring(5));
-		GameRegistry.registerBlock(power_receiver, power_receiver.getUnlocalizedName().substring(5));
-		GameRegistry.registerBlock(atm, atm.getUnlocalizedName().substring(5));
+		GameRegistry.register(tradestation.setRegistryName(tradestation.getUnlocalizedName().substring(5)));
+		GameRegistry.register(safe.setRegistryName(safe.getUnlocalizedName().substring(5)));
+		GameRegistry.register(signalblock.setRegistryName(signalblock.getUnlocalizedName().substring(5)));
+		GameRegistry.register(vendor.setRegistryName(vendor.getUnlocalizedName().substring(5)));
+		GameRegistry.register(vendor_frame.setRegistryName(vendor_frame.getUnlocalizedName().substring(5)));
+		GameRegistry.register(packager.setRegistryName(packager.getUnlocalizedName().substring(5)));
+		GameRegistry.register(standing_ucsign.setRegistryName(standing_ucsign.getUnlocalizedName().substring(5)));
+		GameRegistry.register(wall_ucsign.setRegistryName(wall_ucsign.getUnlocalizedName().substring(5)));
+		GameRegistry.register(power_transmitter.setRegistryName(power_transmitter.getUnlocalizedName().substring(5)));
+		GameRegistry.register(power_receiver.setRegistryName(power_receiver.getUnlocalizedName().substring(5)));
+		GameRegistry.register(atm.setRegistryName(atm.getUnlocalizedName().substring(5)));
 	}
 
 	public void registerItems() {

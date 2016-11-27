@@ -64,7 +64,7 @@ public class ATMWithdrawalMessage implements IMessage, IMessageHandler<ATMWithdr
 	}
 
 	private void processMessage(ATMWithdrawalMessage message, final MessageContext ctx) {
-		World world = ctx.getServerHandler().playerEntity.worldObj;
+		World world = ctx.getServerHandler().playerEntity.world;
 
 		TileEntity tileEntity = world.getTileEntity(new BlockPos(message.x, message.y, message.z));
 		if (tileEntity instanceof TileATM) {

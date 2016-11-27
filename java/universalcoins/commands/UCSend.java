@@ -23,19 +23,19 @@ import universalcoins.UniversalCoins;
 public class UCSend extends CommandBase implements ICommand {
 
 	@Override
-	public String getCommandName() {
+	public String getName() {
 		return I18n.translateToLocal("command.send.name");
 	}
 
 	@Override
-	public List getCommandAliases() {
-		List aliases = new ArrayList();
+	public List<String> getAliases() {
+		List<String> aliases = new ArrayList<String>();
 		aliases.add("pay");
 		return aliases;
 	}
 
 	@Override
-	public String getCommandUsage(ICommandSender var1) {
+	public String getUsage(ICommandSender var1) {
 		return I18n.translateToLocal("command.send.help");
 	}
 
@@ -50,14 +50,14 @@ public class UCSend extends CommandBase implements ICommand {
 			if (args.length == 2) {
 				// check for player
 				EntityPlayerMP recipient = null;
-				WorldServer[] ws = server.worldServers;
+				WorldServer[] ws = server.worlds;
 				for (WorldServer w : ws) {
 					if (w.playerEntities.contains(w.getPlayerEntityByName(args[0]))) {
 						recipient = (EntityPlayerMP) w.getPlayerEntityByName(args[0]);
 					}
 				}
 				if (recipient == null) {
-					sender.addChatMessage(
+					sender.sendMessage(
 							new TextComponentString("§c" + I18n.translateToLocal("command.send.error.notfound")));
 					return;
 				}
@@ -65,12 +65,12 @@ public class UCSend extends CommandBase implements ICommand {
 				try {
 					requestedSendAmount = Integer.parseInt(args[1]);
 				} catch (NumberFormatException e) {
-					sender.addChatMessage(
+					sender.sendMessage(
 							new TextComponentString("§c" + I18n.translateToLocal("command.send.error.badentry")));
 					return;
 				}
 				if (requestedSendAmount <= 0) {
-					sender.addChatMessage(
+					sender.sendMessage(
 							new TextComponentString("§c" + I18n.translateToLocal("command.send.error.badentry")));
 					return;
 				}
@@ -82,23 +82,23 @@ public class UCSend extends CommandBase implements ICommand {
 					if (stack != null) {
 						switch (stack.getUnlocalizedName()) {
 						case "item.iron_coin":
-							coinsFound += stack.stackSize * UniversalCoins.coinValues[0];
+							coinsFound += stack.getCount() * UniversalCoins.coinValues[0];
 							player.inventory.setInventorySlotContents(i, null);
 							break;
 						case "item.gold_coin":
-							coinsFound += stack.stackSize * UniversalCoins.coinValues[1];
+							coinsFound += stack.getCount() * UniversalCoins.coinValues[1];
 							player.inventory.setInventorySlotContents(i, null);
 							break;
 						case "item.emerald_coin":
-							coinsFound += stack.stackSize * UniversalCoins.coinValues[2];
+							coinsFound += stack.getCount() * UniversalCoins.coinValues[2];
 							player.inventory.setInventorySlotContents(i, null);
 							break;
 						case "item.diamond_coin":
-							coinsFound += stack.stackSize * UniversalCoins.coinValues[3];
+							coinsFound += stack.getCount() * UniversalCoins.coinValues[3];
 							player.inventory.setInventorySlotContents(i, null);
 							break;
 						case "item.obsidian_coin":
-							coinsFound += stack.stackSize * UniversalCoins.coinValues[4];
+							coinsFound += stack.getCount() * UniversalCoins.coinValues[4];
 							player.inventory.setInventorySlotContents(i, null);
 							break;
 						}
@@ -106,7 +106,7 @@ public class UCSend extends CommandBase implements ICommand {
 				}
 				// if sender is short, cancel this transaction and return coins.
 				if (coinsFound < requestedSendAmount) {
-					sender.addChatMessage(
+					sender.sendMessage(
 							new TextComponentString("§c" + I18n.translateToLocal("command.send.error.insufficient")));
 					givePlayerCoins((EntityPlayerMP) sender, coinsFound);
 					return;
@@ -115,14 +115,14 @@ public class UCSend extends CommandBase implements ICommand {
 				coinsFound -= requestedSendAmount;
 				// send coins to recipient
 				givePlayerCoins(recipient, requestedSendAmount);
-				sender.addChatMessage(new TextComponentString((requestedSendAmount) + " "
+				sender.sendMessage(new TextComponentString((requestedSendAmount) + " "
 						+ I18n.translateToLocal("command.send.result.sender") + " " + args[0]));
-				recipient.addChatMessage(new TextComponentString((requestedSendAmount) + " "
+				recipient.sendMessage(new TextComponentString((requestedSendAmount) + " "
 						+ I18n.translateToLocal("command.send.result.receiver") + " " + sender.getName()));
 				// give sender back change
 				givePlayerCoins(player, coinsFound);
 			} else
-				sender.addChatMessage(
+				sender.sendMessage(
 						new TextComponentString("§c" + I18n.translateToLocal("command.send.error.incomplete")));
 		}
 	}
@@ -132,24 +132,24 @@ public class UCSend extends CommandBase implements ICommand {
 		while (coinsLeft > 0) {
 			if (coinsLeft > UniversalCoins.coinValues[4]) {
 				stack = new ItemStack(UniversalCoins.proxy.obsidian_coin, 1);
-				stack.stackSize = (int) Math.floor(coinsLeft / UniversalCoins.coinValues[4]);
-				coinsLeft -= stack.stackSize * UniversalCoins.coinValues[4];
+				stack.setCount((int) Math.floor(coinsLeft / UniversalCoins.coinValues[4]));
+				coinsLeft -= stack.getCount() * UniversalCoins.coinValues[4];
 			} else if (coinsLeft > UniversalCoins.coinValues[3]) {
 				stack = new ItemStack(UniversalCoins.proxy.diamond_coin, 1);
-				stack.stackSize = (int) Math.floor(coinsLeft / UniversalCoins.coinValues[3]);
-				coinsLeft -= stack.stackSize * UniversalCoins.coinValues[3];
+				stack.setCount((int) Math.floor(coinsLeft / UniversalCoins.coinValues[3]));
+				coinsLeft -= stack.getCount() * UniversalCoins.coinValues[3];
 			} else if (coinsLeft > UniversalCoins.coinValues[2]) {
 				stack = new ItemStack(UniversalCoins.proxy.emerald_coin, 1);
-				stack.stackSize = (int) Math.floor(coinsLeft / UniversalCoins.coinValues[2]);
-				coinsLeft -= stack.stackSize * UniversalCoins.coinValues[2];
+				stack.setCount((int) Math.floor(coinsLeft / UniversalCoins.coinValues[2]));
+				coinsLeft -= stack.getCount() * UniversalCoins.coinValues[2];
 			} else if (coinsLeft > UniversalCoins.coinValues[1]) {
 				stack = new ItemStack(UniversalCoins.proxy.gold_coin, 1);
-				stack.stackSize = (int) Math.floor(coinsLeft / UniversalCoins.coinValues[1]);
-				coinsLeft -= stack.stackSize * UniversalCoins.coinValues[1];
+				stack.setCount((int) Math.floor(coinsLeft / UniversalCoins.coinValues[1]));
+				coinsLeft -= stack.getCount() * UniversalCoins.coinValues[1];
 			} else if (coinsLeft > UniversalCoins.coinValues[0]) {
 				stack = new ItemStack(UniversalCoins.proxy.iron_coin, 1);
-				stack.stackSize = (int) Math.floor(coinsLeft / UniversalCoins.coinValues[0]);
-				coinsLeft -= stack.stackSize * UniversalCoins.coinValues[0];
+				stack.setCount((int) Math.floor(coinsLeft / UniversalCoins.coinValues[0]));
+				coinsLeft -= stack.getCount() * UniversalCoins.coinValues[0];
 			}
 
 			if (stack == null)
@@ -162,27 +162,27 @@ public class UCSend extends CommandBase implements ICommand {
 				for (int i = 0; i < recipient.inventory.getSizeInventory(); i++) {
 					ItemStack istack = recipient.inventory.getStackInSlot(i);
 					if (istack != null && istack.getItem() == stack.getItem()) {
-						int amountToAdd = (int) Math.min(stack.stackSize, istack.getMaxStackSize() - istack.stackSize);
-						istack.stackSize += amountToAdd;
-						stack.stackSize -= amountToAdd;
+						int amountToAdd = (int) Math.min(stack.getCount(), istack.getMaxStackSize() - istack.getCount());
+						istack.setCount(istack.getCount() + amountToAdd);
+						stack.setCount(stack.getCount() - amountToAdd);
 					}
 				}
 				// at this point, we're going to throw extra to the world since
 				// the player inventory must be full.
-				World world = ((EntityPlayerMP) recipient).worldObj;
+				World world = ((EntityPlayerMP) recipient).world;
 				Random rand = new Random();
 				float rx = rand.nextFloat() * 0.8F + 0.1F;
 				float ry = rand.nextFloat() * 0.8F + 0.1F;
 				float rz = rand.nextFloat() * 0.8F + 0.1F;
 				EntityItem entityItem = new EntityItem(world, ((EntityPlayerMP) recipient).posX + rx,
 						((EntityPlayerMP) recipient).posY + ry, ((EntityPlayerMP) recipient).posZ + rz, stack);
-				world.spawnEntityInWorld(entityItem);
+				world.spawnEntity(entityItem);
 			}
 		}
 	}
 
 	@Override
-	public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args,
+	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args,
 			BlockPos pos) {
 		if (args.length == 1) {
 			List<String> players = new ArrayList<String>();

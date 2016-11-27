@@ -1,5 +1,6 @@
 package universalcoins.tileentity;
 
+import com.google.common.base.Objects;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -47,7 +48,7 @@ public class TileUCSign extends TileEntitySign {
 
 	public void updateSign() {
 		markDirty();
-		worldObj.notifyBlockUpdate(getPos(), worldObj.getBlockState(pos), worldObj.getBlockState(pos), 3);
+		world.notifyBlockUpdate(getPos(), world.getBlockState(pos), world.getBlockState(pos), 3);
 	}
 
 	public void sendServerUpdateMessage() {
@@ -75,16 +76,16 @@ public class TileUCSign extends TileEntitySign {
 		int[] itemCount = { 0, 0, 0, 0 };
 		int meta = super.getBlockMetadata();
 		if (meta == 2) {
-			tileEntity = worldObj.getTileEntity(new BlockPos(pos.getX(), pos.getY(), pos.getZ() + 1));
+			tileEntity = world.getTileEntity(new BlockPos(pos.getX(), pos.getY(), pos.getZ() + 1));
 		}
 		if (meta == 3) {
-			tileEntity = worldObj.getTileEntity(new BlockPos(pos.getX(), pos.getY(), pos.getZ() - 1));
+			tileEntity = world.getTileEntity(new BlockPos(pos.getX(), pos.getY(), pos.getZ() - 1));
 		}
 		if (meta == 4) {
-			tileEntity = worldObj.getTileEntity(new BlockPos(pos.getX() + 1, pos.getY(), pos.getZ()));
+			tileEntity = world.getTileEntity(new BlockPos(pos.getX() + 1, pos.getY(), pos.getZ()));
 		}
 		if (meta == 5) {
-			tileEntity = worldObj.getTileEntity(new BlockPos(pos.getX() - 1, pos.getY(), pos.getZ()));
+			tileEntity = world.getTileEntity(new BlockPos(pos.getX() - 1, pos.getY(), pos.getZ()));
 		}
 		if (tileEntity != null && tileEntity instanceof IInventory) {
 			IInventory inventory = (IInventory) tileEntity;
@@ -101,7 +102,7 @@ public class TileUCSign extends TileEntitySign {
 							}
 						}
 						if (itemName[j].matches(inventory.getStackInSlot(i).getDisplayName())) {
-							itemCount[j] += inventory.getStackInSlot(i).stackSize;
+							itemCount[j] += inventory.getStackInSlot(i).getCount();
 						}
 					}
 				}
@@ -132,7 +133,7 @@ public class TileUCSign extends TileEntitySign {
 									}
 								}
 								if (itemName[j].matches(inventory.getStackInSlot(i).getDisplayName())) {
-									itemCount[j] += inventory.getStackInSlot(i).stackSize;
+									itemCount[j] += inventory.getStackInSlot(i).getCount();
 								}
 							}
 						}
@@ -141,7 +142,7 @@ public class TileUCSign extends TileEntitySign {
 			}
 			// update sign with info collected
 			for (int i = 0; i < itemName.length; i++) {
-				if (itemName[i] != "") {
+				if (!Objects.equal(itemName[i], "")) {
 					ITextComponent itextcomponent = ITextComponent.Serializer
 							.jsonToComponent(itemCount[i] + " " + itemName[i]);
 					signText[i] = itextcomponent;

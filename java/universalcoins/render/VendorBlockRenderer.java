@@ -40,7 +40,7 @@ public class VendorBlockRenderer extends TileEntitySpecialRenderer {
 
 		try {
 			// render trade item
-			renderer.doRender(entity, 0, 0, 0, 0, Minecraft.getMinecraft().thePlayer.ticksExisted);
+			renderer.doRender(entity, 0, 0, 0, 0, Minecraft.getMinecraft().player.ticksExisted);
 		} catch (Throwable e) {
 		}
 		GlStateManager.popMatrix();

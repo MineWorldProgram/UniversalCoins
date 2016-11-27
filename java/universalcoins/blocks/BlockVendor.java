@@ -60,13 +60,13 @@ public class BlockVendor extends BlockProtected {
 
 	@Override
 	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
-			ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+			EnumFacing side, float hitX, float hitY, float hitZ) {
 		TileEntity tileEntity = world.getTileEntity(pos);
 		if (tileEntity != null && tileEntity instanceof TileVendor) {
 			TileVendor tentity = (TileVendor) tileEntity;
 			if (tentity.inUse) {
 				if (!world.isRemote) {
-					player.addChatMessage(new TextComponentString(I18n.translateToLocal("chat.warning.inuse")));
+					player.sendMessage(new TextComponentString(I18n.translateToLocal("chat.warning.inuse")));
 				}
 				return true;
 			} else {
@@ -131,7 +131,7 @@ public class BlockVendor extends BlockProtected {
 					NBTTagCompound tag = (NBTTagCompound) tagList.getCompoundTagAt(i);
 					byte slot = tag.getByte("Slot");
 					if (slot >= 0 && slot < tentity.getSizeInventory()) {
-						tentity.setInventorySlotContents(slot, ItemStack.loadItemStackFromNBT(tag));
+						tentity.setInventorySlotContents(slot, new ItemStack(tag));
 					}
 				}
 				tentity.coinSum = tagCompound.getInteger("CoinSum");

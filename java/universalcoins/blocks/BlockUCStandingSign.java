@@ -67,7 +67,7 @@ public class BlockUCStandingSign extends BlockStandingSign {
 
 	@Override
 	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
-			ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+			EnumFacing side, float hitX, float hitY, float hitZ) {
 		TileEntity tileEntity = world.getTileEntity(pos);
 		if (tileEntity != null && tileEntity instanceof TileUCSign) {
 			TileUCSign tentity = (TileUCSign) tileEntity;

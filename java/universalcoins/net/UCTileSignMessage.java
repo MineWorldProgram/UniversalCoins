@@ -83,7 +83,7 @@ public class UCTileSignMessage implements IMessage, IMessageHandler<UCTileSignMe
 	}
 
 	private void processMessage(UCTileSignMessage message, final MessageContext ctx) {
-		TileEntity tileEntity = FMLClientHandler.instance().getClient().theWorld
+		TileEntity tileEntity = FMLClientHandler.instance().getClient().world
 				.getTileEntity(new BlockPos(message.xCoord, message.yCoord, message.zCoord));
 
 		if (tileEntity != null && tileEntity instanceof TileUCSign) {

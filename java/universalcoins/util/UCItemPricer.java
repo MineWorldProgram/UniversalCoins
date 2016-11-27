@@ -427,8 +427,8 @@ public class UCItemPricer {
 				}
 				if (validRecipe && itemCost > 0) {
 					priceUpdate = true;
-					if (output.stackSize > 1) {
-						itemCost = itemCost / output.stackSize;
+					if (output.getCount() > 1) {
+						itemCost = itemCost / output.getCount();
 					}
 					try {
 						UCItemPricer.getInstance().setItemPrice(output, itemCost);
@@ -447,8 +447,8 @@ public class UCItemPricer {
 			for (int i = 0; i < shapedRecipe.recipeItems.length; i++) {
 				if (shapedRecipe.recipeItems[i] instanceof ItemStack) {
 					ItemStack itemStack = shapedRecipe.recipeItems[i].copy();
-					if (itemStack.stackSize > 1) {
-						itemStack.stackSize = 1;
+					if (itemStack.getCount() > 1) {
+						itemStack.setCount(1);
 					}
 					recipeInputs.add(itemStack);
 				}
@@ -458,8 +458,8 @@ public class UCItemPricer {
 			for (Object object : shapelessRecipe.recipeItems) {
 				if (object instanceof ItemStack) {
 					ItemStack itemStack = ((ItemStack) object).copy();
-					if (itemStack.stackSize > 1) {
-						itemStack.stackSize = 1;
+					if (itemStack.getCount() > 1) {
+						itemStack.setCount(1);
 					}
 					recipeInputs.add(itemStack);
 				}
@@ -485,8 +485,8 @@ public class UCItemPricer {
 					}
 				} else if (shapedOreRecipe.getInput()[i] instanceof ItemStack) {
 					ItemStack itemStack = ((ItemStack) shapedOreRecipe.getInput()[i]).copy();
-					if (itemStack.stackSize > 1) {
-						itemStack.stackSize = 1;
+					if (itemStack.getCount() > 1) {
+						itemStack.setCount(1);
 					}
 					recipeInputs.add(itemStack);
 				}
@@ -509,8 +509,8 @@ public class UCItemPricer {
 						recipeInputs.add((ItemStack) test.get(0));
 				} else if (object instanceof ItemStack) {
 					ItemStack itemStack = ((ItemStack) object).copy();
-					if (itemStack.stackSize > 1) {
-						itemStack.stackSize = 1;
+					if (itemStack.getCount() > 1) {
+						itemStack.setCount(1);
 					}
 					recipeInputs.add(itemStack);
 				}

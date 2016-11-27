@@ -34,7 +34,7 @@ public class BlockPowerTransmitter extends BlockProtected {
 
 	@Override
 	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
-			ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+			EnumFacing side, float hitX, float hitY, float hitZ) {
 		TileEntity te = world.getTileEntity(pos);
 		if (te != null && te instanceof TilePowerTransmitter) {
 			TilePowerTransmitter tentity = (TilePowerTransmitter) te;
@@ -62,7 +62,7 @@ public class BlockPowerTransmitter extends BlockProtected {
 					NBTTagCompound tag = (NBTTagCompound) tagList.getCompoundTagAt(i);
 					byte slot = tag.getByte("Slot");
 					if (slot >= 0 && slot < tentity.getSizeInventory()) {
-						tentity.setInventorySlotContents(slot, ItemStack.loadItemStackFromNBT(tag));
+						tentity.setInventorySlotContents(slot, new ItemStack(tag));
 					}
 				}
 				tentity.coinSum = tagCompound.getInteger("coinSum");

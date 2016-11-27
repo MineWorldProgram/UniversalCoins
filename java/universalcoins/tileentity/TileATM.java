@@ -35,7 +35,7 @@ public class TileATM extends TileEntity implements IInventory, ISidedInventory {
 	public long accountBalance = 0;
 
 	public void inUseCleanup() {
-		if (worldObj.isRemote)
+		if (world.isRemote)
 			return;
 		inUse = false;
 		withdrawCoins = false;
@@ -62,11 +62,11 @@ public class TileATM extends TileEntity implements IInventory, ISidedInventory {
 	public ItemStack decrStackSize(int slot, int size) {
 		ItemStack stack = getStackInSlot(slot);
 		if (stack != null) {
-			if (stack.stackSize <= size) {
+			if (stack.getCount() <= size) {
 				setInventorySlotContents(slot, null);
 			} else {
 				stack = stack.splitStack(size);
-				if (stack.stackSize == 0) {
+				if (stack.getCount() == 0) {
 					setInventorySlotContents(slot, null);
 				}
 			}
@@ -109,17 +109,17 @@ public class TileATM extends TileEntity implements IInventory, ISidedInventory {
 					coinValue = UniversalCoins.coinValues[4];
 					break;
 				}
-				long depositAmount = Math.min(stack.stackSize, (Long.MAX_VALUE - accountBalance) / coinValue);
-				if (!worldObj.isRemote) {
+				long depositAmount = Math.min(stack.getCount(), (Long.MAX_VALUE - accountBalance) / coinValue);
+				if (!world.isRemote) {
 					UniversalAccounts.getInstance().creditAccount(accountNumber, depositAmount * coinValue);
 					accountBalance = UniversalAccounts.getInstance().getAccountBalance(accountNumber);
 				}
-				inventory[slot].stackSize -= depositAmount;
-				if (inventory[slot].stackSize == 0) {
+				inventory[slot].setCount((int)(inventory[slot].getCount() - depositAmount));
+				if (inventory[slot].getCount() == 0) {
 					inventory[slot] = null;
 				}
 			}
-			if (slot == itemCardSlot && !worldObj.isRemote) {
+			if (slot == itemCardSlot && !world.isRemote) {
 				if (!inventory[itemCardSlot].hasTagCompound()) {
 					return;
 				}
@@ -173,7 +173,7 @@ public class TileATM extends TileEntity implements IInventory, ISidedInventory {
 
 	public void updateTE() {
 		markDirty();
-		worldObj.notifyBlockUpdate(getPos(), worldObj.getBlockState(pos), worldObj.getBlockState(pos), 3);
+		world.notifyBlockUpdate(getPos(), world.getBlockState(pos), world.getBlockState(pos), 3);
 	}
 
 	@Override
@@ -185,7 +185,7 @@ public class TileATM extends TileEntity implements IInventory, ISidedInventory {
 			NBTTagCompound tag = (NBTTagCompound) tagList.getCompoundTagAt(i);
 			byte slot = tag.getByte("Slot");
 			if (slot >= 0 && slot < inventory.length) {
-				inventory[slot] = ItemStack.loadItemStackFromNBT(tag);
+				inventory[slot] = new ItemStack(tag);
 			}
 		}
 		try {
@@ -257,8 +257,8 @@ public class TileATM extends TileEntity implements IInventory, ISidedInventory {
 	}
 
 	@Override
-	public boolean isUseableByPlayer(EntityPlayer entityplayer) {
-		return worldObj.getTileEntity(pos) == this
+	public boolean isUsableByPlayer(EntityPlayer entityplayer) {
+		return world.getTileEntity(pos) == this
 				&& entityplayer.getDistanceSq(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) < 64;
 	}
 
@@ -268,7 +268,7 @@ public class TileATM extends TileEntity implements IInventory, ISidedInventory {
 	}
 
 	public void onButtonPressed(int functionId) {
-		if (worldObj.isRemote)
+		if (world.isRemote)
 			return;
 		accountError = false; // reset error state
 		// handle function IDs sent from CardStationGUI
@@ -344,35 +344,46 @@ public class TileATM extends TileEntity implements IInventory, ISidedInventory {
 		if (inventory[itemCoinSlot] == null && coinWithdrawalAmount > 0) {
 			if (coinWithdrawalAmount > UniversalCoins.coinValues[4]) {
 				inventory[itemCoinSlot] = new ItemStack(UniversalCoins.proxy.obsidian_coin);
-				inventory[itemCoinSlot].stackSize = (int) Math.min(coinWithdrawalAmount / UniversalCoins.coinValues[4],
-						64);
-				coinWithdrawalAmount -= inventory[itemCoinSlot].stackSize * UniversalCoins.coinValues[4];
+				inventory[itemCoinSlot].setCount((int) Math.min(coinWithdrawalAmount / UniversalCoins.coinValues[4],
+						64));
+				coinWithdrawalAmount -= inventory[itemCoinSlot].getCount() * UniversalCoins.coinValues[4];
 			} else if (coinWithdrawalAmount > UniversalCoins.coinValues[3]) {
 				inventory[itemCoinSlot] = new ItemStack(UniversalCoins.proxy.diamond_coin);
-				inventory[itemCoinSlot].stackSize = (int) Math.min(coinWithdrawalAmount / UniversalCoins.coinValues[3],
-						64);
-				coinWithdrawalAmount -= inventory[itemCoinSlot].stackSize * UniversalCoins.coinValues[3];
+				inventory[itemCoinSlot].setCount((int) Math.min(coinWithdrawalAmount / UniversalCoins.coinValues[3],
+						64));
+				coinWithdrawalAmount -= inventory[itemCoinSlot].getCount() * UniversalCoins.coinValues[3];
 			} else if (coinWithdrawalAmount > UniversalCoins.coinValues[2]) {
 				inventory[itemCoinSlot] = new ItemStack(UniversalCoins.proxy.emerald_coin);
-				inventory[itemCoinSlot].stackSize = (int) Math.min(coinWithdrawalAmount / UniversalCoins.coinValues[2],
-						64);
-				coinWithdrawalAmount -= inventory[itemCoinSlot].stackSize * UniversalCoins.coinValues[2];
+				inventory[itemCoinSlot].setCount((int) Math.min(coinWithdrawalAmount / UniversalCoins.coinValues[2],
+						64));
+				coinWithdrawalAmount -= inventory[itemCoinSlot].getCount() * UniversalCoins.coinValues[2];
 			} else if (coinWithdrawalAmount > UniversalCoins.coinValues[1]) {
 				inventory[itemCoinSlot] = new ItemStack(UniversalCoins.proxy.gold_coin);
-				inventory[itemCoinSlot].stackSize = (int) Math.min(coinWithdrawalAmount / UniversalCoins.coinValues[1],
-						64);
-				coinWithdrawalAmount -= inventory[itemCoinSlot].stackSize * UniversalCoins.coinValues[1];
+				inventory[itemCoinSlot].setCount((int) Math.min(coinWithdrawalAmount / UniversalCoins.coinValues[1],
+						64));
+				coinWithdrawalAmount -= inventory[itemCoinSlot].getCount() * UniversalCoins.coinValues[1];
 			} else if (coinWithdrawalAmount > UniversalCoins.coinValues[0]) {
 				inventory[itemCoinSlot] = new ItemStack(UniversalCoins.proxy.iron_coin);
-				inventory[itemCoinSlot].stackSize = (int) Math.min(coinWithdrawalAmount / UniversalCoins.coinValues[0],
-						64);
-				coinWithdrawalAmount -= inventory[itemCoinSlot].stackSize * UniversalCoins.coinValues[0];
+				inventory[itemCoinSlot].setCount((int) Math.min(coinWithdrawalAmount / UniversalCoins.coinValues[0],
+						64));
+				coinWithdrawalAmount -= inventory[itemCoinSlot].getCount() * UniversalCoins.coinValues[0];
 			}
 		}
 		if (coinWithdrawalAmount <= 0) {
 			withdrawCoins = false;
 			coinWithdrawalAmount = 0;
 		}
+	}
+
+	@Override
+	public boolean isEmpty() {
+		for (ItemStack itemStack : inventory) {
+			if (itemStack != null && !itemStack.isEmpty()) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	@Override

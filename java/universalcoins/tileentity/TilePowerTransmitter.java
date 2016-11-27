@@ -45,11 +45,11 @@ public class TilePowerTransmitter extends TileEntity implements IInventory, IEne
 	public ItemStack decrStackSize(int slot, int size) {
 		ItemStack stack = getStackInSlot(slot);
 		if (stack != null) {
-			if (stack.stackSize <= size) {
+			if (stack.getCount() <= size) {
 				setInventorySlotContents(slot, null);
 			} else {
 				stack = stack.splitStack(size);
-				if (stack.stackSize == 0) {
+				if (stack.getCount() == 0) {
 					setInventorySlotContents(slot, null);
 				}
 			}
@@ -85,8 +85,8 @@ public class TilePowerTransmitter extends TileEntity implements IInventory, IEne
 	}
 
 	@Override
-	public boolean isUseableByPlayer(EntityPlayer entityplayer) {
-		return worldObj.getTileEntity(pos) == this
+	public boolean isUsableByPlayer(EntityPlayer entityplayer) {
+		return world.getTileEntity(pos) == this
 				&& entityplayer.getDistanceSq(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) < 64;
 	}
 
@@ -136,7 +136,7 @@ public class TilePowerTransmitter extends TileEntity implements IInventory, IEne
 	}
 
 	private long getAccountBalance() {
-		if (worldObj.isRemote || inventory[itemCardSlot] == null || !inventory[itemCardSlot].hasTagCompound()) {
+		if (world.isRemote || inventory[itemCardSlot] == null || !inventory[itemCardSlot].hasTagCompound()) {
 			return 0;
 		}
 		String accountNumber = inventory[itemCardSlot].getTagCompound().getString("Account");
@@ -147,7 +147,7 @@ public class TilePowerTransmitter extends TileEntity implements IInventory, IEne
 	}
 
 	private boolean creditAccount(long amount) {
-		if (worldObj.isRemote || inventory[itemCardSlot] == null
+		if (world.isRemote || inventory[itemCardSlot] == null
 				|| inventory[itemCardSlot].getItem() != UniversalCoins.proxy.ender_card
 				|| !inventory[itemCardSlot].hasTagCompound())
 			return false;
@@ -180,7 +180,7 @@ public class TilePowerTransmitter extends TileEntity implements IInventory, IEne
 
 	public void updateTE() {
 		markDirty();
-		worldObj.notifyBlockUpdate(getPos(), worldObj.getBlockState(pos), worldObj.getBlockState(pos), 3);
+		world.notifyBlockUpdate(getPos(), world.getBlockState(pos), world.getBlockState(pos), 3);
 	}
 
 	@Override
@@ -213,7 +213,7 @@ public class TilePowerTransmitter extends TileEntity implements IInventory, IEne
 			NBTTagCompound tag = (NBTTagCompound) tagList.getCompoundTagAt(i);
 			byte slot = tag.getByte("Slot");
 			if (slot >= 0 && slot < inventory.length) {
-				inventory[slot] = ItemStack.loadItemStackFromNBT(tag);
+				inventory[slot] = new ItemStack(tag);
 			}
 		}
 		try {
@@ -249,27 +249,27 @@ public class TilePowerTransmitter extends TileEntity implements IInventory, IEne
 		if (coinSum > UniversalCoins.coinValues[4]) {
 			inventory[itemOutputSlot] = new ItemStack(UniversalCoins.proxy.obsidian_coin);
 			 int amount = (int) Math.min(coinSum / UniversalCoins.coinValues[4], 64);
-			 inventory[itemOutputSlot].stackSize = amount;
+			 inventory[itemOutputSlot].setCount(amount);
 			 coinSum -= amount * UniversalCoins.coinValues[4];
 		} else if (coinSum > UniversalCoins.coinValues[3]) {
 			inventory[itemOutputSlot] = new ItemStack(UniversalCoins.proxy.diamond_coin);
 			int amount  = (int) Math.min(coinSum / UniversalCoins.coinValues[3], 64);
-			inventory[itemOutputSlot].stackSize = amount;
+			inventory[itemOutputSlot].setCount(amount);
 			 coinSum -= amount * UniversalCoins.coinValues[3];
 		} else if (coinSum > UniversalCoins.coinValues[2]) {
 			inventory[itemOutputSlot] = new ItemStack(UniversalCoins.proxy.emerald_coin);
 			int amount  = (int) Math.min(coinSum / UniversalCoins.coinValues[2], 64);
-			inventory[itemOutputSlot].stackSize = amount;
+			inventory[itemOutputSlot].setCount(amount);
 			 coinSum -= amount * UniversalCoins.coinValues[2];
 		} else if (coinSum > UniversalCoins.coinValues[1]) {
 			inventory[itemOutputSlot] = new ItemStack(UniversalCoins.proxy.gold_coin);
 			int amount  = (int) Math.min(coinSum / UniversalCoins.coinValues[1], 64);
-			inventory[itemOutputSlot].stackSize = amount;
+			inventory[itemOutputSlot].setCount(amount);
 			 coinSum -= amount * UniversalCoins.coinValues[1];
 		} else if (coinSum > UniversalCoins.coinValues[0]) {
 			inventory[itemOutputSlot] = new ItemStack(UniversalCoins.proxy.iron_coin);
 			int amount  = (int) Math.min(coinSum / UniversalCoins.coinValues[0], 64);
-			inventory[itemOutputSlot].stackSize = amount;
+			inventory[itemOutputSlot].setCount(amount);
 			 coinSum -= amount * UniversalCoins.coinValues[0];
 		}
 	}
@@ -320,4 +320,14 @@ public class TilePowerTransmitter extends TileEntity implements IInventory, IEne
 
 	}
 
+	@Override
+	public boolean isEmpty() {
+		for (ItemStack itemStack : inventory) {
+			if (itemStack != null && !itemStack.isEmpty()) {
+				return false;
+			}
+		}
+
+		return true;
+	}
 }

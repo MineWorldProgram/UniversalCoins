@@ -18,24 +18,26 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.translation.I18n;
 import universalcoins.util.UCItemPricer;
 
+import javax.annotation.Nullable;
+
 public class UCCommand extends CommandBase implements ICommand {
 
 	private boolean firstChange = true;
 	DecimalFormat formatter = new DecimalFormat("#,###,###,###,###,###,###");
 
 	@Override
-	public String getCommandName() {
+	public String getName() {
 		return I18n.translateToLocal("command.uccommand.name");
 	}
 
 	@Override
-	public String getCommandUsage(ICommandSender icommandsender) {
+	public String getUsage(ICommandSender icommandsender) {
 		return I18n.translateToLocal("command.uccommand.help");
 	}
 
 	@Override
-	public List getCommandAliases() {
-		List aliases = new ArrayList();
+	public List<String> getAliases() {
+		List<String> aliases = new ArrayList<String>();
 		aliases.add("uc");
 		return aliases;
 	}
@@ -44,20 +46,20 @@ public class UCCommand extends CommandBase implements ICommand {
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		if (args.length <= 0) {
-			throw new WrongUsageException(this.getCommandUsage(sender));
+			throw new WrongUsageException(this.getUsage(sender));
 		} else if (args[0].matches(I18n.translateToLocal("command.uccommand.option.help.name"))) {
-			sender.addChatMessage(new TextComponentString(I18n.translateToLocal("command.uccommand.usage")));
-			sender.addChatMessage(new TextComponentString(I18n.translateToLocal("command.uccommand.commandheader")));
-			sender.addChatMessage(new TextComponentString(I18n.translateToLocal("command.uccommand.option.get.help")));
-			sender.addChatMessage(new TextComponentString(I18n.translateToLocal("command.uccommand.option.set.help")));
-			sender.addChatMessage(
+			sender.sendMessage(new TextComponentString(I18n.translateToLocal("command.uccommand.usage")));
+			sender.sendMessage(new TextComponentString(I18n.translateToLocal("command.uccommand.commandheader")));
+			sender.sendMessage(new TextComponentString(I18n.translateToLocal("command.uccommand.option.get.help")));
+			sender.sendMessage(new TextComponentString(I18n.translateToLocal("command.uccommand.option.set.help")));
+			sender.sendMessage(
 					new TextComponentString(I18n.translateToLocal("command.uccommand.option.reload.help")));
-			sender.addChatMessage(
+			sender.sendMessage(
 					new TextComponentString(I18n.translateToLocal("command.uccommand.option.reset.help")));
-			sender.addChatMessage(new TextComponentString(I18n.translateToLocal("command.uccommand.option.save.help")));
-			sender.addChatMessage(
+			sender.sendMessage(new TextComponentString(I18n.translateToLocal("command.uccommand.option.save.help")));
+			sender.sendMessage(
 					new TextComponentString(I18n.translateToLocal("command.uccommand.option.update.help")));
-			sender.addChatMessage(new TextComponentString(I18n.translateToLocal("command.uccommand.usage.hint")));
+			sender.sendMessage(new TextComponentString(I18n.translateToLocal("command.uccommand.usage.hint")));
 		} else if (args[0].matches(I18n.translateToLocal("command.uccommand.option.reload.name"))) {
 			UCItemPricer.getInstance().loadConfigs();
 		} else if (args[0].matches(I18n.translateToLocal("command.uccommand.option.get.name"))) {
@@ -73,14 +75,14 @@ public class UCCommand extends CommandBase implements ICommand {
 					}
 				}
 				if (price == -1) {
-					sender.addChatMessage(new TextComponentString(
+					sender.sendMessage(new TextComponentString(
 							"§c" + I18n.translateToLocal("command.uccommand.warning.pricenotset") + " " + stackName));
 				} else
-					sender.addChatMessage(
+					sender.sendMessage(
 							new TextComponentString("§a" + I18n.translateToLocal("command.uccommand.warning.pricefound")
 									+ " " + stackName + ": " + formatter.format(price)));
 			} else
-				sender.addChatMessage(
+				sender.sendMessage(
 						new TextComponentString("§c" + I18n.translateToLocal("command.uccommand.warning.noitem")));
 		} else if (args[0].matches(I18n.translateToLocal("command.uccommand.option.set.name"))) {
 			// set item price
@@ -90,7 +92,7 @@ public class UCCommand extends CommandBase implements ICommand {
 				try {
 					price = Integer.parseInt(args[2]);
 				} catch (NumberFormatException e) {
-					sender.addChatMessage(new TextComponentString(
+					sender.sendMessage(new TextComponentString(
 							"§c" + I18n.translateToLocal("command.uccommand.option.set.price.invalid")));
 					return;
 				}
@@ -101,39 +103,39 @@ public class UCCommand extends CommandBase implements ICommand {
 					}
 				}
 				if (result == true) {
-					sender.addChatMessage(new TextComponentString(
+					sender.sendMessage(new TextComponentString(
 							I18n.translateToLocal("command.uccommand.option.set.price") + " " + formatter.format(price)));
 					if (firstChange) {
-						sender.addChatMessage(new TextComponentString(
+						sender.sendMessage(new TextComponentString(
 								I18n.translateToLocal("command.uccommand.option.set.price.firstuse.one")));
-						sender.addChatMessage(new TextComponentString(
+						sender.sendMessage(new TextComponentString(
 								I18n.translateToLocal("command.uccommand.option.set.price.firstuse.two")));
-						sender.addChatMessage(new TextComponentString(
+						sender.sendMessage(new TextComponentString(
 								I18n.translateToLocal("command.uccommand.option.set.price.firstuse.three")));
 						firstChange = false;
 					}
 				} else {
-					sender.addChatMessage(new TextComponentString(
+					sender.sendMessage(new TextComponentString(
 							"§c" + I18n.translateToLocal("command.uccommand.option.set.price.fail.one")));
 				}
 			} else
-				sender.addChatMessage(new TextComponentString(
+				sender.sendMessage(new TextComponentString(
 						"§c" + I18n.translateToLocal("command.uccommand.option.set.price.error")));
 		} else if (args[0].matches(I18n.translateToLocal("command.uccommand.option.reload"))) {
 			UCItemPricer.getInstance().loadConfigs();
-			sender.addChatMessage(
+			sender.sendMessage(
 					new TextComponentString("§a" + I18n.translateToLocal("command.uccommand.option.reload.confirm")));
 		} else if (args[0].matches(I18n.translateToLocal("command.uccommand.option.reset.name"))) {
 			UCItemPricer.getInstance().resetDefaults();
-			sender.addChatMessage(
+			sender.sendMessage(
 					new TextComponentString("§a" + I18n.translateToLocal("command.uccommand.option.reset.confirm")));
 		} else if (args[0].matches(I18n.translateToLocal("command.uccommand.option.save.name"))) {
 			UCItemPricer.getInstance().savePriceLists();
-			sender.addChatMessage(
+			sender.sendMessage(
 					new TextComponentString("§a" + I18n.translateToLocal("command.uccommand.option.save.confirm")));
 		} else if (args[0].matches(I18n.translateToLocal("command.uccommand.option.update.name"))) {
 			UCItemPricer.getInstance().updatePriceLists();
-			sender.addChatMessage(
+			sender.sendMessage(
 					new TextComponentString("§a" + I18n.translateToLocal("command.uccommand.option.update.confirm")));
 		}
 	}
@@ -148,7 +150,7 @@ public class UCCommand extends CommandBase implements ICommand {
 	}
 
 	@Override
-	public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args,
+	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args,
 			BlockPos pos) {
 		if (args.length == 1) {
 			List<String> options = new ArrayList<String>();

@@ -17,7 +17,7 @@ public class ItemFourthCoin extends ItemCoin {
 	@Override
 	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean bool) {
 		DecimalFormat formatter = new DecimalFormat("###,###,###,###,###");
-		list.add(formatter.format(stack.stackSize * UniversalCoins.coinValues[3]) + " "
+		list.add(formatter.format(stack.getCount() * UniversalCoins.coinValues[3]) + " "
 				+ I18n.translateToLocal("general.currency.multiple"));
 	}
 }

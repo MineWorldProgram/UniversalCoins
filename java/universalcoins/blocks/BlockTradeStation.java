@@ -28,12 +28,12 @@ public class BlockTradeStation extends BlockProtected {
 
 	@Override
 	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
-			ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+			EnumFacing side, float hitX, float hitY, float hitZ) {
 		TileEntity tileEntity = world.getTileEntity(pos);
 		if (tileEntity != null && tileEntity instanceof TileTradeStation) {
 			if (((TileTradeStation) tileEntity).inUse) {
 				if (!world.isRemote) {
-					player.addChatMessage(new TextComponentString(I18n.translateToLocal("chat.warning.inuse")));
+					player.sendMessage(new TextComponentString(I18n.translateToLocal("chat.warning.inuse")));
 				}
 				return true;
 			}
@@ -52,7 +52,7 @@ public class BlockTradeStation extends BlockProtected {
 					return true;
 				}
 				if (!world.isRemote) {
-					player.addChatMessage(new TextComponentString(I18n.translateToLocal("chat.warning.private")));
+					player.sendMessage(new TextComponentString(I18n.translateToLocal("chat.warning.private")));
 				}
 			}
 		}

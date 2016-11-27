@@ -65,11 +65,11 @@ public class TileSafe extends TileEntity implements IInventory, ISidedInventory 
 	public ItemStack decrStackSize(int slot, int size) {
 		ItemStack stack = getStackInSlot(slot);
 		if (stack != null) {
-			if (stack.stackSize <= size) {
+			if (stack.getCount() <= size) {
 				setInventorySlotContents(slot, null);
 			} else {
 				stack = stack.splitStack(size);
-				if (stack.stackSize == 0) {
+				if (stack.getCount() == 0) {
 					setInventorySlotContents(slot, null);
 				}
 			}
@@ -100,8 +100,8 @@ public class TileSafe extends TileEntity implements IInventory, ISidedInventory 
 		int debitAmount = 0;
 		int accountCapacity = (int) (Long.MAX_VALUE - accountBalance > Integer.MAX_VALUE ? Integer.MAX_VALUE
 				: Long.MAX_VALUE - accountBalance);
-		debitAmount = Math.min(stack.stackSize, accountCapacity / coinValue);
-		if (!worldObj.isRemote) {
+		debitAmount = Math.min(stack.getCount(), accountCapacity / coinValue);
+		if (!world.isRemote) {
 			UniversalAccounts.getInstance().debitAccount(accountNumber, debitAmount * coinValue);
 			updateAccountBalance();
 		}
@@ -139,17 +139,17 @@ public class TileSafe extends TileEntity implements IInventory, ISidedInventory 
 				if (coinValue > 0) {
 					int accountCapacity = (int) (Long.MAX_VALUE - accountBalance > Integer.MAX_VALUE ? Integer.MAX_VALUE
 							: Long.MAX_VALUE - accountBalance);
-					int depositAmount = Math.min(accountCapacity / coinValue, stack.stackSize);
+					int depositAmount = Math.min(accountCapacity / coinValue, stack.getAnimationsToGo());
 					if(FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER) {
 						//Only deposit on server side, otherwise we deposit twice.
 						UniversalAccounts.getInstance().creditAccount(accountNumber, depositAmount * coinValue);
 					}
-					inventory[slot].stackSize -= depositAmount;
-					if (inventory[slot].stackSize == 0) {
+					inventory[slot].setCount(inventory[slot].getCount() - depositAmount);
+					if (inventory[slot].getCount() == 0) {
 						inventory[slot] = null;
 					}
 					fillOutputSlot();
-					if (!worldObj.isRemote)
+					if (!world.isRemote)
 						updateAccountBalance();
 				}
 			}
@@ -159,19 +159,19 @@ public class TileSafe extends TileEntity implements IInventory, ISidedInventory 
 	public void fillOutputSlot() {
 		if (accountBalance > UniversalCoins.coinValues[4]) {
 			inventory[itemOutputSlot] = new ItemStack(UniversalCoins.proxy.obsidian_coin);
-			inventory[itemOutputSlot].stackSize = (int) Math.min(accountBalance / UniversalCoins.coinValues[4], 64);
+			inventory[itemOutputSlot].setCount((int) Math.min(accountBalance / UniversalCoins.coinValues[4], 64));
 		} else if (accountBalance > UniversalCoins.coinValues[3]) {
 			inventory[itemOutputSlot] = new ItemStack(UniversalCoins.proxy.diamond_coin);
-			inventory[itemOutputSlot].stackSize = (int) Math.min(accountBalance / UniversalCoins.coinValues[3], 64);
+			inventory[itemOutputSlot].setCount((int) Math.min(accountBalance / UniversalCoins.coinValues[3], 64));
 		} else if (accountBalance > UniversalCoins.coinValues[2]) {
 			inventory[itemOutputSlot] = new ItemStack(UniversalCoins.proxy.emerald_coin);
-			inventory[itemOutputSlot].stackSize = (int) Math.min(accountBalance / UniversalCoins.coinValues[2], 64);
+			inventory[itemOutputSlot].setCount((int) Math.min(accountBalance / UniversalCoins.coinValues[2], 64));
 		} else if (accountBalance > UniversalCoins.coinValues[1]) {
 			inventory[itemOutputSlot] = new ItemStack(UniversalCoins.proxy.gold_coin);
-			inventory[itemOutputSlot].stackSize = (int) Math.min(accountBalance / UniversalCoins.coinValues[1], 64);
+			inventory[itemOutputSlot].setCount((int) Math.min(accountBalance / UniversalCoins.coinValues[1], 64));
 		} else if (accountBalance > UniversalCoins.coinValues[0]) {
 			inventory[itemOutputSlot] = new ItemStack(UniversalCoins.proxy.iron_coin);
-			inventory[itemOutputSlot].stackSize = (int) Math.min(accountBalance / UniversalCoins.coinValues[0], 64);
+			inventory[itemOutputSlot].setCount((int) Math.min(accountBalance / UniversalCoins.coinValues[0], 64));
 		}
 	}
 
@@ -195,8 +195,8 @@ public class TileSafe extends TileEntity implements IInventory, ISidedInventory 
 	}
 
 	@Override
-	public boolean isUseableByPlayer(EntityPlayer entityplayer) {
-		return worldObj.getTileEntity(pos) == this
+	public boolean isUsableByPlayer(EntityPlayer entityplayer) {
+		return world.getTileEntity(pos) == this
 				&& entityplayer.getDistanceSq(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) < 64;
 	}
 
@@ -236,7 +236,7 @@ public class TileSafe extends TileEntity implements IInventory, ISidedInventory 
 			NBTTagCompound tag = (NBTTagCompound) tagList.getCompoundTagAt(i);
 			byte slot = tag.getByte("Slot");
 			if (slot >= 0 && slot < inventory.length) {
-				inventory[slot] = ItemStack.loadItemStackFromNBT(tag);
+				inventory[slot] = new ItemStack(tag);
 			}
 		}
 		try {
@@ -276,7 +276,7 @@ public class TileSafe extends TileEntity implements IInventory, ISidedInventory 
 
 	public void updateTE() {
 		markDirty();
-		worldObj.notifyBlockUpdate(getPos(), worldObj.getBlockState(pos), worldObj.getBlockState(pos), 3);
+		world.notifyBlockUpdate(getPos(), world.getBlockState(pos), world.getBlockState(pos), 3);
 	}
 
 	public void setSafeAccount(String playerName) {
@@ -284,7 +284,7 @@ public class TileSafe extends TileEntity implements IInventory, ISidedInventory 
 	}
 
 	private String getPlayerUID(String playerName) {
-		EntityPlayer player = worldObj.getPlayerEntityByName(playerName);
+		EntityPlayer player = world.getPlayerEntityByName(playerName);
 		return player.getUniqueID().toString();
 	}
 
@@ -333,5 +333,16 @@ public class TileSafe extends TileEntity implements IInventory, ISidedInventory 
 	@Override
 	public String getName() {
 		return UniversalCoins.proxy.safe.getLocalizedName();
+	}
+
+	@Override
+	public boolean isEmpty() {
+		for (ItemStack itemStack : inventory) {
+			if (itemStack != null && !itemStack.isEmpty()) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 }

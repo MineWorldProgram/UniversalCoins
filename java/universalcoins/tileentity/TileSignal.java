@@ -33,7 +33,7 @@ public class TileSignal extends TileEntity implements IInventory, ITickable {
 
 	@Override
 	public void update() {
-		if (!worldObj.isRemote) {
+		if (!getWorld().isRemote) {
 			if (counter > 0) {
 				counter--;
 				FMLLog.info("counter: " + counter);
@@ -111,12 +111,12 @@ public class TileSignal extends TileEntity implements IInventory, ITickable {
 	private void updateNeighbors() {
 		this.blockType = this.getBlockType();
 		if (this.blockType instanceof BlockSignal) {
-			((BlockSignal) blockType).updatePower(worldObj, pos);
+			((BlockSignal) blockType).updatePower(getWorld(), pos);
 		}
 	}
 
 	public boolean isUseableByPlayer(EntityPlayer entityplayer) {
-		return worldObj.getTileEntity(pos) == this
+		return getWorld().getTileEntity(pos) == this
 				&& entityplayer.getDistanceSq(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5) < 64;
 	}
 
@@ -159,7 +159,7 @@ public class TileSignal extends TileEntity implements IInventory, ITickable {
 
 	public void updateTE() {
 		markDirty();
-		worldObj.notifyBlockUpdate(getPos(), worldObj.getBlockState(pos), worldObj.getBlockState(pos), 3);
+		getWorld().notifyBlockUpdate(getPos(), getWorld().getBlockState(pos), getWorld().getBlockState(pos), 3);
 	}
 
 	@Override
@@ -195,7 +195,7 @@ public class TileSignal extends TileEntity implements IInventory, ITickable {
 			NBTTagCompound tag = (NBTTagCompound) tagList.getCompoundTagAt(i);
 			byte slot = tag.getByte("Slot");
 			if (slot >= 0 && slot < inventory.length) {
-				inventory[slot] = ItemStack.loadItemStackFromNBT(tag);
+				inventory[slot] = new ItemStack(tag);
 			}
 		}
 		try {
@@ -252,11 +252,11 @@ public class TileSignal extends TileEntity implements IInventory, ITickable {
 	public ItemStack decrStackSize(int slot, int size) {
 		ItemStack stack = getStackInSlot(slot);
 		if (stack != null) {
-			if (stack.stackSize <= size) {
+			if (stack.getCount() <= size) {
 				inventory[slot] = null;
 			} else {
 				stack = stack.splitStack(size);
-				if (stack.stackSize == 0) {
+				if (stack.getCount() == 0) {
 					inventory[slot] = null;
 				}
 			}
@@ -284,6 +284,18 @@ public class TileSignal extends TileEntity implements IInventory, ITickable {
 	// @Override
 	public ItemStack getStackInSlotOnClosing(int i) {
 		return getStackInSlot(i);
+	}
+
+	@Override
+	public boolean isUsableByPlayer(EntityPlayer player)
+	{
+		return false;
+	}
+
+	@Override
+	public boolean isEmpty()
+	{
+		return inventory[0] == null || inventory[0].isEmpty();
 	}
 
 	@Override

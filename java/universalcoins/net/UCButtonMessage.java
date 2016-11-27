@@ -71,7 +71,7 @@ public class UCButtonMessage implements IMessage, IMessageHandler<UCButtonMessag
 	}
 
 	private void processMessage(UCButtonMessage message, final MessageContext ctx) {
-		World world = ctx.getServerHandler().playerEntity.worldObj;
+		World world = ctx.getServerHandler().playerEntity.world;
 
 		TileEntity tileEntity = world.getTileEntity(new BlockPos(message.x, message.y, message.z));
 		if (tileEntity instanceof TileTradeStation) {

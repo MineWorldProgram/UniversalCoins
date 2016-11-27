@@ -37,8 +37,8 @@ public class TileVendorBlock extends TileVendor {
 				signText[0] = "&" + Integer.toHexString(textColor)
 						+ (I18n.translateToLocal("sign.warning.inventoryfull"));
 			}
-			if (inventory[itemTradeSlot].stackSize > 1) {
-				signText[1] = "&" + Integer.toHexString(textColor) + inventory[itemTradeSlot].stackSize + " "
+			if (inventory[itemTradeSlot].getCount() > 1) {
+				signText[1] = "&" + Integer.toHexString(textColor) + inventory[itemTradeSlot].getCount() + " "
 						+ inventory[itemTradeSlot].getDisplayName();
 			} else {
 				signText[1] = "&" + Integer.toHexString(textColor) + inventory[itemTradeSlot].getDisplayName();
@@ -63,8 +63,8 @@ public class TileVendorBlock extends TileVendor {
 					for (int i = 0; i < tagList.tagCount(); i++) {
 						NBTTagCompound tag = (NBTTagCompound) tagList.getCompoundTagAt(i);
 						byte slot = tag.getByte("Slot");
-						int itemCount = ItemStack.loadItemStackFromNBT(tag).stackSize;
-						String itemName = ItemStack.loadItemStackFromNBT(tag).getDisplayName();
+						int itemCount = new ItemStack(tag).getCount();
+						String itemName = new ItemStack(tag).getDisplayName();
 						signText[2] += itemCount + ":" + itemName + " ";
 					}
 				}
@@ -73,7 +73,7 @@ public class TileVendorBlock extends TileVendor {
 
 			// find and update all signs
 			TileEntity te;
-			te = worldObj.getTileEntity(new BlockPos(pos.getX() + 1, pos.getY() - 1, pos.getZ()));
+			te = world.getTileEntity(new BlockPos(pos.getX() + 1, pos.getY() - 1, pos.getZ()));
 			if (te != null && te instanceof TileUCSign) {
 				TileUCSign tesign = (TileUCSign) te;
 				for (int i = 0; i < 4; i++) {
@@ -82,7 +82,7 @@ public class TileVendorBlock extends TileVendor {
 				tesign.updateSign();
 				tesign.markDirty();
 			}
-			te = worldObj.getTileEntity(new BlockPos(pos.getX() - 1, pos.getY() - 1, pos.getZ()));
+			te = world.getTileEntity(new BlockPos(pos.getX() - 1, pos.getY() - 1, pos.getZ()));
 			if (te != null && te instanceof TileUCSign) {
 				TileUCSign tesign = (TileUCSign) te;
 				for (int i = 0; i < 4; i++) {
@@ -91,7 +91,7 @@ public class TileVendorBlock extends TileVendor {
 				tesign.updateSign();
 				tesign.markDirty();
 			}
-			te = worldObj.getTileEntity(new BlockPos(pos.getX(), pos.getY() - 1, pos.getZ() - 1));
+			te = world.getTileEntity(new BlockPos(pos.getX(), pos.getY() - 1, pos.getZ() - 1));
 			if (te != null && te instanceof TileUCSign) {
 				TileUCSign tesign = (TileUCSign) te;
 				for (int i = 0; i < 4; i++) {
@@ -100,7 +100,7 @@ public class TileVendorBlock extends TileVendor {
 				tesign.updateSign();
 				tesign.markDirty();
 			}
-			te = worldObj.getTileEntity(new BlockPos(pos.getX(), pos.getY() - 1, pos.getZ() + 1));
+			te = world.getTileEntity(new BlockPos(pos.getX(), pos.getY() - 1, pos.getZ() + 1));
 			if (te != null && te instanceof TileUCSign) {
 				TileUCSign tesign = (TileUCSign) te;
 				for (int i = 0; i < 4; i++) {

@@ -18,12 +18,12 @@ import universalcoins.util.UniversalAccounts;
 public class UCBalance extends CommandBase implements ICommand {
 
 	@Override
-	public String getCommandName() {
+	public String getName() {
 		return I18n.translateToLocal("command.balance.name");
 	}
 
 	@Override
-	public String getCommandUsage(ICommandSender var1) {
+	public String getUsage(ICommandSender var1) {
 		return I18n.translateToLocal("command.balance.help");
 	}
 
@@ -40,10 +40,10 @@ public class UCBalance extends CommandBase implements ICommand {
 			String playerAcct = UniversalAccounts.getInstance().getPlayerAccount(uuid);
 			long accountBalance = UniversalAccounts.getInstance().getAccountBalance(playerAcct);
 			DecimalFormat formatter = new DecimalFormat("#,###,###,###,###,###,###");
-			sender.addChatMessage(new TextComponentString(
+			sender.sendMessage(new TextComponentString(
 					I18n.translateToLocal("command.balance.result.inventory") + formatter.format(playerCoins)));
 			if (accountBalance != -1) {
-				sender.addChatMessage(new TextComponentString(
+				sender.sendMessage(new TextComponentString(
 						I18n.translateToLocal("command.balance.result.account") + formatter.format(accountBalance)));
 			}
 			// achievement stuff
@@ -69,19 +69,19 @@ public class UCBalance extends CommandBase implements ICommand {
 			if (stack != null) {
 				switch (stack.getUnlocalizedName()) {
 				case "item.iron_coin":
-					coinsFound += stack.stackSize * UniversalCoins.coinValues[0];
+					coinsFound += stack.getCount() * UniversalCoins.coinValues[0];
 					break;
 				case "item.gold_coin":
-					coinsFound += stack.stackSize * UniversalCoins.coinValues[1];
+					coinsFound += stack.getCount() * UniversalCoins.coinValues[1];
 					break;
 				case "item.emerald_coin":
-					coinsFound += stack.stackSize * UniversalCoins.coinValues[2];
+					coinsFound += stack.getCount() * UniversalCoins.coinValues[2];
 					break;
 				case "item.diamond_coin":
-					coinsFound += stack.stackSize * UniversalCoins.coinValues[3];
+					coinsFound += stack.getCount() * UniversalCoins.coinValues[3];
 					break;
 				case "item.obsidian_coin":
-					coinsFound += stack.stackSize * UniversalCoins.coinValues[4];
+					coinsFound += stack.getCount() * UniversalCoins.coinValues[4];
 					break;
 				}
 			}

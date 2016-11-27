@@ -35,7 +35,7 @@ public class BlockSafe extends BlockProtected {
 
 	@Override
 	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
-			ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+			EnumFacing side, float hitX, float hitY, float hitZ) {
 		TileEntity tileEntity = world.getTileEntity(pos);
 		if (tileEntity != null && tileEntity instanceof TileSafe) {
 			TileSafe tentity = (TileSafe) tileEntity;
@@ -76,7 +76,7 @@ public class BlockSafe extends BlockProtected {
 		onBlockDestroyedByExplosion(world, pos, explosion);
 		EntityItem entityItem = new EntityItem(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(this, 1));
 		if (!world.isRemote)
-			world.spawnEntityInWorld(entityItem);
+			world.spawnEntity(entityItem);
 	}
 
 	/**

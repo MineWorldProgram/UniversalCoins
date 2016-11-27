@@ -52,7 +52,7 @@ public class VendorFrameRenderer extends TileEntitySpecialRenderer {
 
 		if (itemstack != null) {
 			ItemStack visStack = itemstack.copy();
-			visStack.stackSize = 1;
+			visStack.setCount(1);
 			GlStateManager.translate(0.5F, 0.5F, 0.0635F);
 			GlStateManager.scale(0.5F, 0.5F, 0.5F);
 			EntityItem entityitem = new EntityItem(null, 0, 0, 0, visStack);

@@ -35,8 +35,9 @@ public class ItemLinkCard extends Item {
 	}
 
 	@Override
-	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand,
+	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand,
 			EnumFacing facing, float hitX, float hitY, float hitZ) {
+		ItemStack stack = player.getHeldItem(hand);
 		if (world.isRemote)
 			return EnumActionResult.FAIL;
 		RayTraceResult movingobjectposition = this.rayTrace(world, player, true);
@@ -46,7 +47,7 @@ public class ItemLinkCard extends Item {
 			BlockPos cursorPos = movingobjectposition.getBlockPos();
 			if (world.getTileEntity(cursorPos) instanceof TileEntityChest) {
 				// notify player we have a chest
-				player.addChatMessage(
+				player.sendMessage(
 						new TextComponentString(I18n.translateToLocal("item.link_card.message.stored")
 								+ cursorPos.getX() + " " + cursorPos.getY() + " " + cursorPos.getZ()));
 				stack.getTagCompound().setIntArray("storageLocation",
@@ -56,7 +57,7 @@ public class ItemLinkCard extends Item {
 				TileVendor te = (TileVendor) world.getTileEntity(cursorPos);
 				if (stack.hasTagCompound()) {
 					int[] storageLocation = stack.getTagCompound().getIntArray("storageLocation");
-					player.addChatMessage(
+					player.sendMessage(
 							new TextComponentString(I18n.translateToLocal("item.link_card.message.set")));
 					te.setRemoteStorage(storageLocation);
 					player.inventory.decrStackSize(player.inventory.currentItem, 1);
