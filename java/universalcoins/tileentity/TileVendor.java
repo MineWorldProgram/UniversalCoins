@@ -30,7 +30,7 @@ import universalcoins.util.UniversalAccounts;
 
 public class TileVendor extends TileProtected implements IInventory, ISidedInventory {
 
-	protected NonNullList<ItemStack> inventory = NonNullList.withSize(2, ItemStack.EMPTY);
+	protected NonNullList<ItemStack> inventory = NonNullList.withSize(17, ItemStack.EMPTY);
 	// owner slots
 	public static final int itemStorageSlot1 = 0;
 	public static final int itemStorageSlot2 = 1;
@@ -574,13 +574,13 @@ public class TileVendor extends TileProtected implements IInventory, ISidedInven
 	@Override
 	public ItemStack decrStackSize(int slot, int size) {
 		ItemStack stack = getStackInSlot(slot);
-		if (stack != null) {
+		if (!stack.isEmpty()) {
 			if (stack.getCount() <= size) {
-				setInventorySlotContents(slot, null);
+				setInventorySlotContents(slot, ItemStack.EMPTY);
 			} else {
 				stack = stack.splitStack(size);
 				if (stack.getCount() == 0) {
-					setInventorySlotContents(slot, null);
+					setInventorySlotContents(slot, ItemStack.EMPTY);
 				}
 			}
 		}
@@ -601,7 +601,7 @@ public class TileVendor extends TileProtected implements IInventory, ISidedInven
 	@Override
 	public void setInventorySlotContents(int slot, ItemStack stack) {
 		inventory.set(slot, stack);
-		if (stack != null) {
+		if (!stack.isEmpty()) {
 			if (slot == itemCoinInputSlot || slot == itemUserCoinInputSlot) {
 				int coinValue = 0;
 				switch (stack.getUnlocalizedName()) {
@@ -862,7 +862,7 @@ public class TileVendor extends TileProtected implements IInventory, ISidedInven
 		NBTTagList itemList = new NBTTagList();
 		for (int i = 0; i < inventory.size(); i++) {
 			ItemStack stack = inventory.get(i);
-			if (stack != null) {
+			if (!stack.isEmpty()) {
 				NBTTagCompound tag = new NBTTagCompound();
 				tag.setByte("Slot", (byte) i);
 				stack.writeToNBT(tag);
@@ -943,7 +943,7 @@ public class TileVendor extends TileProtected implements IInventory, ISidedInven
 							if (!inventory.get(i).isEmpty() && chest.getStackInSlot(j).isEmpty()
 									&& chest.getStackInSlot(j).getItem() == inventory.get(itemTradeSlot).getItem()) {
 								inventory.set(i, chest.getStackInSlot(j));
-								chest.setInventorySlotContents(j, null);
+								chest.setInventorySlotContents(j, ItemStack.EMPTY);
 								checkSellingInventory();
 							}
 						}
@@ -1079,7 +1079,7 @@ public class TileVendor extends TileProtected implements IInventory, ISidedInven
 	@Override
 	public boolean isEmpty() {
 		for (ItemStack itemStack : inventory) {
-			if (itemStack != null && !itemStack.isEmpty()) {
+			if (!itemStack.isEmpty()) {
 				return false;
 			}
 		}

@@ -20,7 +20,7 @@ import universalcoins.net.UCButtonMessage;
 
 public class TileSignal extends TileEntity implements IInventory, ITickable {
 
-	private NonNullList<ItemStack> inventory = NonNullList.withSize(2, ItemStack.EMPTY);
+	private NonNullList<ItemStack> inventory = NonNullList.withSize(1, ItemStack.EMPTY);
 	public static final int itemOutputSlot = 0;
 	public String blockOwner = "";
 	public int coinSum = 0;
