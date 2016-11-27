@@ -167,7 +167,7 @@ public class TileVendor extends TileProtected implements IInventory, ISidedInven
 	public int retrieveCoins(int coinField, int buttonClickedID, boolean shiftPressed) {
 		if (buttonClickedID > 9)
 			buttonClickedID -= 10;
-		int absoluteButton = buttonClickedID - TradeStationGUI.idCoinButton;
+		int absoluteButton = buttonClickedID - 3;
 		Item itemOnButton = null;
 		switch (absoluteButton) {
 		case 0:
