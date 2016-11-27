@@ -11,6 +11,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.util.Constants;
@@ -20,7 +21,7 @@ import universalcoins.UniversalCoins;
 import universalcoins.util.UniversalAccounts;
 
 public class TileSafe extends TileEntity implements IInventory, ISidedInventory {
-	private ItemStack[] inventory = new ItemStack[2];
+	private NonNullList<ItemStack> inventory = NonNullList.withSize(2, ItemStack.EMPTY);
 	public static final int itemInputSlot = 0;
 	public static final int itemOutputSlot = 1;
 	public String blockOwner = "nobody";
@@ -50,15 +51,15 @@ public class TileSafe extends TileEntity implements IInventory, ISidedInventory 
 
 	@Override
 	public int getSizeInventory() {
-		return inventory.length;
+		return inventory.size();
 	}
 
 	@Override
 	public ItemStack getStackInSlot(int slot) {
-		if (slot >= inventory.length) {
-			return null;
+		if (slot >= inventory.size()) {
+			return ItemStack.EMPTY;
 		}
-		return inventory[slot];
+		return inventory.get(slot);
 	}
 
 	@Override
@@ -115,7 +116,7 @@ public class TileSafe extends TileEntity implements IInventory, ISidedInventory 
 
 	@Override
 	public void setInventorySlotContents(int slot, ItemStack stack) {
-		inventory[slot] = stack;
+		inventory.set(slot, stack);
 		int coinValue = 0;
 		if (stack != null) {
 			if (slot == itemInputSlot) {
@@ -144,9 +145,9 @@ public class TileSafe extends TileEntity implements IInventory, ISidedInventory 
 						//Only deposit on server side, otherwise we deposit twice.
 						UniversalAccounts.getInstance().creditAccount(accountNumber, depositAmount * coinValue);
 					}
-					inventory[slot].setCount(inventory[slot].getCount() - depositAmount);
-					if (inventory[slot].getCount() == 0) {
-						inventory[slot] = null;
+					inventory.get(slot).setCount(inventory.get(slot).getCount() - depositAmount);
+					if (inventory.get(slot).getCount() == 0) {
+						inventory.set(slot, ItemStack.EMPTY);
 					}
 					fillOutputSlot();
 					if (!world.isRemote)
@@ -158,20 +159,20 @@ public class TileSafe extends TileEntity implements IInventory, ISidedInventory 
 
 	public void fillOutputSlot() {
 		if (accountBalance > UniversalCoins.coinValues[4]) {
-			inventory[itemOutputSlot] = new ItemStack(UniversalCoins.proxy.obsidian_coin);
-			inventory[itemOutputSlot].setCount((int) Math.min(accountBalance / UniversalCoins.coinValues[4], 64));
+			inventory.set(itemOutputSlot, new ItemStack(UniversalCoins.proxy.obsidian_coin));
+			inventory.get(itemOutputSlot).setCount((int) Math.min(accountBalance / UniversalCoins.coinValues[4], 64));
 		} else if (accountBalance > UniversalCoins.coinValues[3]) {
-			inventory[itemOutputSlot] = new ItemStack(UniversalCoins.proxy.diamond_coin);
-			inventory[itemOutputSlot].setCount((int) Math.min(accountBalance / UniversalCoins.coinValues[3], 64));
+			inventory.set(itemOutputSlot, new ItemStack(UniversalCoins.proxy.diamond_coin));
+			inventory.get(itemOutputSlot).setCount((int) Math.min(accountBalance / UniversalCoins.coinValues[3], 64));
 		} else if (accountBalance > UniversalCoins.coinValues[2]) {
-			inventory[itemOutputSlot] = new ItemStack(UniversalCoins.proxy.emerald_coin);
-			inventory[itemOutputSlot].setCount((int) Math.min(accountBalance / UniversalCoins.coinValues[2], 64));
+			inventory.set(itemOutputSlot, new ItemStack(UniversalCoins.proxy.emerald_coin));
+			inventory.get(itemOutputSlot).setCount((int) Math.min(accountBalance / UniversalCoins.coinValues[2], 64));
 		} else if (accountBalance > UniversalCoins.coinValues[1]) {
-			inventory[itemOutputSlot] = new ItemStack(UniversalCoins.proxy.gold_coin);
-			inventory[itemOutputSlot].setCount((int) Math.min(accountBalance / UniversalCoins.coinValues[1], 64));
+			inventory.set(itemOutputSlot, new ItemStack(UniversalCoins.proxy.gold_coin));
+			inventory.get(itemOutputSlot).setCount((int) Math.min(accountBalance / UniversalCoins.coinValues[1], 64));
 		} else if (accountBalance > UniversalCoins.coinValues[0]) {
-			inventory[itemOutputSlot] = new ItemStack(UniversalCoins.proxy.iron_coin);
-			inventory[itemOutputSlot].setCount((int) Math.min(accountBalance / UniversalCoins.coinValues[0], 64));
+			inventory.set(itemOutputSlot, new ItemStack(UniversalCoins.proxy.iron_coin));
+			inventory.get(itemOutputSlot).setCount((int) Math.min(accountBalance / UniversalCoins.coinValues[0], 64));
 		}
 	}
 
@@ -210,8 +211,8 @@ public class TileSafe extends TileEntity implements IInventory, ISidedInventory 
 	public NBTTagCompound writeToNBT(NBTTagCompound tagCompound) {
 		super.writeToNBT(tagCompound);
 		NBTTagList itemList = new NBTTagList();
-		for (int i = 0; i < inventory.length; i++) {
-			ItemStack stack = inventory[i];
+		for (int i = 0; i < inventory.size(); i++) {
+			ItemStack stack = inventory.get(i);
 			if (stack != null) {
 				NBTTagCompound tag = new NBTTagCompound();
 				tag.setByte("Slot", (byte) i);
@@ -235,8 +236,8 @@ public class TileSafe extends TileEntity implements IInventory, ISidedInventory 
 		for (int i = 0; i < tagList.tagCount(); i++) {
 			NBTTagCompound tag = (NBTTagCompound) tagList.getCompoundTagAt(i);
 			byte slot = tag.getByte("Slot");
-			if (slot >= 0 && slot < inventory.length) {
-				inventory[slot] = new ItemStack(tag);
+			if (slot >= 0 && slot < inventory.size()) {
+				inventory.set(slot, new ItemStack(tag));
 			}
 		}
 		try {
@@ -271,7 +272,7 @@ public class TileSafe extends TileEntity implements IInventory, ISidedInventory 
 	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
 		readFromNBT(pkt.getNbtCompound());
 		if (accountBalance == 0)
-			inventory[itemOutputSlot] = null;
+			inventory.set(itemOutputSlot, ItemStack.EMPTY);
 	}
 
 	public void updateTE() {

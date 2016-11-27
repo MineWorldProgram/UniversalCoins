@@ -10,6 +10,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.util.Constants;
@@ -19,7 +20,7 @@ import universalcoins.net.UCButtonMessage;
 import universalcoins.util.UniversalAccounts;
 
 public class TileATM extends TileEntity implements IInventory, ISidedInventory {
-	private ItemStack[] inventory = new ItemStack[2];
+	private NonNullList<ItemStack> inventory = NonNullList.withSize(2, ItemStack.EMPTY);
 	public static final int itemCoinSlot = 0;
 	public static final int itemCardSlot = 1;
 	public String blockOwner = "";
@@ -47,27 +48,27 @@ public class TileATM extends TileEntity implements IInventory, ISidedInventory {
 
 	@Override
 	public int getSizeInventory() {
-		return inventory.length;
+		return inventory.size();
 	}
 
 	@Override
 	public ItemStack getStackInSlot(int slot) {
-		if (slot >= inventory.length) {
-			return null;
+		if (slot >= inventory.size()) {
+			return ItemStack.EMPTY;
 		}
-		return inventory[slot];
+		return inventory.get(slot);
 	}
 
 	@Override
 	public ItemStack decrStackSize(int slot, int size) {
 		ItemStack stack = getStackInSlot(slot);
-		if (stack != null) {
+		if (!stack.isEmpty()) {
 			if (stack.getCount() <= size) {
-				setInventorySlotContents(slot, null);
+				setInventorySlotContents(slot, ItemStack.EMPTY);
 			} else {
 				stack = stack.splitStack(size);
 				if (stack.getCount() == 0) {
-					setInventorySlotContents(slot, null);
+					setInventorySlotContents(slot, ItemStack.EMPTY);
 				}
 			}
 		}
@@ -77,20 +78,20 @@ public class TileATM extends TileEntity implements IInventory, ISidedInventory {
 
 	// @Override
 	public ItemStack getStackInSlotOnClosing(int slot) {
-		if (this.inventory[slot] != null) {
-			ItemStack itemstack = this.inventory[slot];
-			this.inventory[slot] = null;
+		if (!this.inventory.get(slot).isEmpty()) {
+			ItemStack itemstack = this.inventory.get(slot);
+			this.inventory.set(slot, ItemStack.EMPTY);
 			return itemstack;
 		} else {
-			return null;
+			return ItemStack.EMPTY;
 		}
 	}
 
 	@Override
 	public void setInventorySlotContents(int slot, ItemStack stack) {
-		inventory[slot] = stack;
+		inventory.set(slot, stack);
 		int coinValue = 0;
-		if (stack != null) {
+		if (!stack.isEmpty()) {
 			if (slot == itemCoinSlot && depositCoins && !accountNumber.matches("none")) {
 				switch (stack.getUnlocalizedName()) {
 				case "item.iron_coin":
@@ -114,17 +115,17 @@ public class TileATM extends TileEntity implements IInventory, ISidedInventory {
 					UniversalAccounts.getInstance().creditAccount(accountNumber, depositAmount * coinValue);
 					accountBalance = UniversalAccounts.getInstance().getAccountBalance(accountNumber);
 				}
-				inventory[slot].setCount((int)(inventory[slot].getCount() - depositAmount));
-				if (inventory[slot].getCount() == 0) {
-					inventory[slot] = null;
+				inventory.get(slot).setCount((int)(inventory.get(slot).getCount() - depositAmount));
+				if (inventory.get(slot).getCount() == 0) {
+					inventory.set(slot, ItemStack.EMPTY);
 				}
 			}
 			if (slot == itemCardSlot && !world.isRemote) {
-				if (!inventory[itemCardSlot].hasTagCompound()) {
+				if (!inventory.get(itemCardSlot).hasTagCompound()) {
 					return;
 				}
-				accountNumber = inventory[itemCardSlot].getTagCompound().getString("Account");
-				cardOwner = inventory[itemCardSlot].getTagCompound().getString("Owner");
+				accountNumber = inventory.get(itemCardSlot).getTagCompound().getString("Account");
+				cardOwner = inventory.get(itemCardSlot).getTagCompound().getString("Owner");
 				accountBalance = UniversalAccounts.getInstance().getAccountBalance(accountNumber);
 			}
 		}
@@ -184,8 +185,8 @@ public class TileATM extends TileEntity implements IInventory, ISidedInventory {
 		for (int i = 0; i < tagList.tagCount(); i++) {
 			NBTTagCompound tag = (NBTTagCompound) tagList.getCompoundTagAt(i);
 			byte slot = tag.getByte("Slot");
-			if (slot >= 0 && slot < inventory.length) {
-				inventory[slot] = new ItemStack(tag);
+			if (slot >= 0 && slot < inventory.size()) {
+				inventory.set(slot, new ItemStack(tag));
 			}
 		}
 		try {
@@ -234,14 +235,12 @@ public class TileATM extends TileEntity implements IInventory, ISidedInventory {
 	public NBTTagCompound writeToNBT(NBTTagCompound tagCompound) {
 		super.writeToNBT(tagCompound);
 		NBTTagList itemList = new NBTTagList();
-		for (int i = 0; i < inventory.length; i++) {
-			ItemStack stack = inventory[i];
-			if (stack != null) {
-				NBTTagCompound tag = new NBTTagCompound();
-				tag.setByte("Slot", (byte) i);
-				stack.writeToNBT(tag);
-				itemList.appendTag(tag);
-			}
+		for (int i = 0; i < inventory.size(); i++) {
+			ItemStack stack = inventory.get(i);
+			NBTTagCompound tag = new NBTTagCompound();
+			tag.setByte("Slot", (byte) i);
+			stack.writeToNBT(tag);
+			itemList.appendTag(tag);
 		}
 		tagCompound.setTag("Inventory", itemList);
 		tagCompound.setString("BlockOwner", blockOwner);
@@ -280,22 +279,22 @@ public class TileATM extends TileEntity implements IInventory, ISidedInventory {
 		// function6 - destroy invalid card
 		if (functionId == 1) {
 			accountNumber = UniversalAccounts.getInstance().getOrCreatePlayerAccount(playerUID);
-			inventory[itemCardSlot] = new ItemStack(UniversalCoins.proxy.uc_card, 1);
-			inventory[itemCardSlot].setTagCompound(new NBTTagCompound());
-			inventory[itemCardSlot].getTagCompound().setString("Name", playerName);
-			inventory[itemCardSlot].getTagCompound().setString("Owner", playerUID);
-			inventory[itemCardSlot].getTagCompound().setString("Account", accountNumber);
+			inventory.set(itemCardSlot, new ItemStack(UniversalCoins.proxy.uc_card, 1));
+			inventory.get(itemCardSlot).setTagCompound(new NBTTagCompound());
+			inventory.get(itemCardSlot).getTagCompound().setString("Name", playerName);
+			inventory.get(itemCardSlot).getTagCompound().setString("Owner", playerUID);
+			inventory.get(itemCardSlot).getTagCompound().setString("Account", accountNumber);
 			accountBalance = UniversalAccounts.getInstance().getAccountBalance(accountNumber);
 			cardOwner = playerUID;
 		}
 		if (functionId == 2) {
 			if (!(UniversalAccounts.getInstance().getPlayerAccount(playerUID).matches(""))) {
 				UniversalAccounts.getInstance().transferPlayerAccount(playerUID);
-				inventory[itemCardSlot] = new ItemStack(UniversalCoins.proxy.uc_card, 1);
-				inventory[itemCardSlot].setTagCompound(new NBTTagCompound());
-				inventory[itemCardSlot].getTagCompound().setString("Name", playerName);
-				inventory[itemCardSlot].getTagCompound().setString("Owner", playerUID);
-				inventory[itemCardSlot].getTagCompound().setString("Account",
+				inventory.set(itemCardSlot, new ItemStack(UniversalCoins.proxy.uc_card, 1));
+				inventory.get(itemCardSlot).setTagCompound(new NBTTagCompound());
+				inventory.get(itemCardSlot).getTagCompound().setString("Name", playerName);
+				inventory.get(itemCardSlot).getTagCompound().setString("Owner", playerUID);
+				inventory.get(itemCardSlot).getTagCompound().setString("Account",
 						UniversalAccounts.getInstance().getPlayerAccount(playerUID));
 				accountBalance = UniversalAccounts.getInstance().getAccountBalance(accountNumber);
 				cardOwner = playerUID;
@@ -307,8 +306,8 @@ public class TileATM extends TileEntity implements IInventory, ISidedInventory {
 			depositCoins = true;
 			withdrawCoins = false;
 			// set account number if not already set and we have a card present
-			if (accountNumber.matches("none") && inventory[itemCardSlot] != null) {
-				accountNumber = inventory[itemCardSlot].getTagCompound().getString("Account");
+			if (accountNumber.matches("none") && !inventory.get(itemCardSlot).isEmpty()) {
+				accountNumber = inventory.get(itemCardSlot).getTagCompound().getString("Account");
 			}
 		} else {
 			depositCoins = false;
@@ -328,7 +327,7 @@ public class TileATM extends TileEntity implements IInventory, ISidedInventory {
 			}
 		}
 		if (functionId == 6) {
-			inventory[itemCardSlot] = null;
+			inventory.set(itemCardSlot, ItemStack.EMPTY);
 			inUseCleanup();
 		}
 	}
@@ -341,32 +340,32 @@ public class TileATM extends TileEntity implements IInventory, ISidedInventory {
 	}
 
 	public void fillCoinSlot() {
-		if (inventory[itemCoinSlot] == null && coinWithdrawalAmount > 0) {
+		if (inventory.get(itemCoinSlot).isEmpty() && coinWithdrawalAmount > 0) {
 			if (coinWithdrawalAmount > UniversalCoins.coinValues[4]) {
-				inventory[itemCoinSlot] = new ItemStack(UniversalCoins.proxy.obsidian_coin);
-				inventory[itemCoinSlot].setCount((int) Math.min(coinWithdrawalAmount / UniversalCoins.coinValues[4],
+				inventory.set(itemCoinSlot, new ItemStack(UniversalCoins.proxy.obsidian_coin));
+				inventory.get(itemCoinSlot).setCount((int) Math.min(coinWithdrawalAmount / UniversalCoins.coinValues[4],
 						64));
-				coinWithdrawalAmount -= inventory[itemCoinSlot].getCount() * UniversalCoins.coinValues[4];
+				coinWithdrawalAmount -= inventory.get(itemCoinSlot).getCount() * UniversalCoins.coinValues[4];
 			} else if (coinWithdrawalAmount > UniversalCoins.coinValues[3]) {
-				inventory[itemCoinSlot] = new ItemStack(UniversalCoins.proxy.diamond_coin);
-				inventory[itemCoinSlot].setCount((int) Math.min(coinWithdrawalAmount / UniversalCoins.coinValues[3],
+				inventory.set(itemCoinSlot, new ItemStack(UniversalCoins.proxy.diamond_coin));
+				inventory.get(itemCoinSlot).setCount((int) Math.min(coinWithdrawalAmount / UniversalCoins.coinValues[3],
 						64));
-				coinWithdrawalAmount -= inventory[itemCoinSlot].getCount() * UniversalCoins.coinValues[3];
+				coinWithdrawalAmount -= inventory.get(itemCoinSlot).getCount() * UniversalCoins.coinValues[3];
 			} else if (coinWithdrawalAmount > UniversalCoins.coinValues[2]) {
-				inventory[itemCoinSlot] = new ItemStack(UniversalCoins.proxy.emerald_coin);
-				inventory[itemCoinSlot].setCount((int) Math.min(coinWithdrawalAmount / UniversalCoins.coinValues[2],
+				inventory.set(itemCoinSlot, new ItemStack(UniversalCoins.proxy.emerald_coin));
+				inventory.get(itemCoinSlot).setCount((int) Math.min(coinWithdrawalAmount / UniversalCoins.coinValues[2],
 						64));
-				coinWithdrawalAmount -= inventory[itemCoinSlot].getCount() * UniversalCoins.coinValues[2];
+				coinWithdrawalAmount -= inventory.get(itemCoinSlot).getCount() * UniversalCoins.coinValues[2];
 			} else if (coinWithdrawalAmount > UniversalCoins.coinValues[1]) {
-				inventory[itemCoinSlot] = new ItemStack(UniversalCoins.proxy.gold_coin);
-				inventory[itemCoinSlot].setCount((int) Math.min(coinWithdrawalAmount / UniversalCoins.coinValues[1],
+				inventory.set(itemCoinSlot, new ItemStack(UniversalCoins.proxy.gold_coin));
+				inventory.get(itemCoinSlot).setCount((int) Math.min(coinWithdrawalAmount / UniversalCoins.coinValues[1],
 						64));
-				coinWithdrawalAmount -= inventory[itemCoinSlot].getCount() * UniversalCoins.coinValues[1];
+				coinWithdrawalAmount -= inventory.get(itemCoinSlot).getCount() * UniversalCoins.coinValues[1];
 			} else if (coinWithdrawalAmount > UniversalCoins.coinValues[0]) {
-				inventory[itemCoinSlot] = new ItemStack(UniversalCoins.proxy.iron_coin);
-				inventory[itemCoinSlot].setCount((int) Math.min(coinWithdrawalAmount / UniversalCoins.coinValues[0],
+				inventory.set(itemCoinSlot, new ItemStack(UniversalCoins.proxy.iron_coin));
+				inventory.get(itemCoinSlot).setCount((int) Math.min(coinWithdrawalAmount / UniversalCoins.coinValues[0],
 						64));
-				coinWithdrawalAmount -= inventory[itemCoinSlot].getCount() * UniversalCoins.coinValues[0];
+				coinWithdrawalAmount -= inventory.get(itemCoinSlot).getCount() * UniversalCoins.coinValues[0];
 			}
 		}
 		if (coinWithdrawalAmount <= 0) {

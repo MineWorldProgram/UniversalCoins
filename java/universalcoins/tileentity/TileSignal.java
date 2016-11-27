@@ -9,6 +9,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.util.Constants;
@@ -19,7 +20,7 @@ import universalcoins.net.UCButtonMessage;
 
 public class TileSignal extends TileEntity implements IInventory, ITickable {
 
-	private ItemStack[] inventory = new ItemStack[1];
+	private NonNullList<ItemStack> inventory = NonNullList.withSize(2, ItemStack.EMPTY);
 	public static final int itemOutputSlot = 0;
 	public String blockOwner = "";
 	public int coinSum = 0;
@@ -166,8 +167,8 @@ public class TileSignal extends TileEntity implements IInventory, ITickable {
 	public NBTTagCompound writeToNBT(NBTTagCompound tagCompound) {
 		super.writeToNBT(tagCompound);
 		NBTTagList itemList = new NBTTagList();
-		for (int i = 0; i < inventory.length; i++) {
-			ItemStack stack = inventory[i];
+		for (int i = 0; i < inventory.size(); i++) {
+			ItemStack stack = inventory.get(i);
 			if (stack != null) {
 				NBTTagCompound tag = new NBTTagCompound();
 				tag.setByte("Slot", (byte) i);
@@ -194,8 +195,8 @@ public class TileSignal extends TileEntity implements IInventory, ITickable {
 		for (int i = 0; i < tagList.tagCount(); i++) {
 			NBTTagCompound tag = (NBTTagCompound) tagList.getCompoundTagAt(i);
 			byte slot = tag.getByte("Slot");
-			if (slot >= 0 && slot < inventory.length) {
-				inventory[slot] = new ItemStack(tag);
+			if (slot >= 0 && slot < inventory.size()) {
+				inventory.set(slot, new ItemStack(tag));
 			}
 		}
 		try {
@@ -237,15 +238,15 @@ public class TileSignal extends TileEntity implements IInventory, ITickable {
 
 	@Override
 	public int getSizeInventory() {
-		return inventory.length;
+		return inventory.size();
 	}
 
 	@Override
 	public ItemStack getStackInSlot(int i) {
-		if (i >= inventory.length) {
-			return null;
+		if (i >= inventory.size()) {
+			return ItemStack.EMPTY;
 		}
-		return inventory[i];
+		return inventory.get(i);
 	}
 
 	@Override
@@ -253,11 +254,11 @@ public class TileSignal extends TileEntity implements IInventory, ITickable {
 		ItemStack stack = getStackInSlot(slot);
 		if (stack != null) {
 			if (stack.getCount() <= size) {
-				inventory[slot] = null;
+				inventory.set(slot, ItemStack.EMPTY);
 			} else {
 				stack = stack.splitStack(size);
 				if (stack.getCount() == 0) {
-					inventory[slot] = null;
+					inventory.set(slot, ItemStack.EMPTY);
 				}
 			}
 		}
@@ -265,13 +266,13 @@ public class TileSignal extends TileEntity implements IInventory, ITickable {
 	}
 
 	public void fillOutputSlot() { //TODO fix this
-//		inventory[itemOutputSlot] = null;
+//		inventory.set(itemOutputSlot, ItemStack.EMPTY);
 //		if (coinSum > 0) {
 //			// use logarithm to find largest cointype for the balance
 //			int logVal = Math.min((int) (Math.log(coinSum) / Math.log(9)), 4);
 //			int stackSize = Math.min((int) (coinSum / Math.pow(9, logVal)), 64);
 //			// add a stack to the slot
-//			inventory[itemOutputSlot] = new ItemStack(coins[logVal], stackSize);
+//			inventory.set(itemOutputSlot, new ItemStack(coins[logVal], stackSize));
 //			int itemValue = multiplier[logVal];
 //			int debitAmount = 0;
 //			debitAmount = Math.min(stackSize, (Integer.MAX_VALUE - coinSum) / itemValue);
@@ -295,7 +296,7 @@ public class TileSignal extends TileEntity implements IInventory, ITickable {
 	@Override
 	public boolean isEmpty()
 	{
-		return inventory[0] == null || inventory[0].isEmpty();
+		return inventory.get(0).isEmpty() || inventory.get(0).isEmpty();
 	}
 
 	@Override

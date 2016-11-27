@@ -283,7 +283,7 @@ public class UCItemPricer {
 	}
 
 	public int getItemPrice(ItemStack itemStack) {
-		if (itemStack == null) {
+		if (itemStack.isEmpty()) {
 			// FMLLog.warning("itemstack is null");
 			return -1;
 		}

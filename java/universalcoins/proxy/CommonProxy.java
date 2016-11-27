@@ -2,6 +2,7 @@ package universalcoins.proxy;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import universalcoins.Achievements;
@@ -58,17 +59,22 @@ public class CommonProxy {
 
 	public void registerBlocks() {
 		//GameRegistry.register(tradestation, new ResourceLocation("universalcoins:tradestation"));
-		GameRegistry.register(tradestation.setRegistryName(tradestation.getUnlocalizedName().substring(5)));
-		GameRegistry.register(safe.setRegistryName(safe.getUnlocalizedName().substring(5)));
-		GameRegistry.register(signalblock.setRegistryName(signalblock.getUnlocalizedName().substring(5)));
-		GameRegistry.register(vendor.setRegistryName(vendor.getUnlocalizedName().substring(5)));
-		GameRegistry.register(vendor_frame.setRegistryName(vendor_frame.getUnlocalizedName().substring(5)));
-		GameRegistry.register(packager.setRegistryName(packager.getUnlocalizedName().substring(5)));
-		GameRegistry.register(standing_ucsign.setRegistryName(standing_ucsign.getUnlocalizedName().substring(5)));
-		GameRegistry.register(wall_ucsign.setRegistryName(wall_ucsign.getUnlocalizedName().substring(5)));
-		GameRegistry.register(power_transmitter.setRegistryName(power_transmitter.getUnlocalizedName().substring(5)));
-		GameRegistry.register(power_receiver.setRegistryName(power_receiver.getUnlocalizedName().substring(5)));
-		GameRegistry.register(atm.setRegistryName(atm.getUnlocalizedName().substring(5)));
+		registerBlock(tradestation);
+		registerBlock(safe);
+		registerBlock(signalblock);
+		registerBlock(vendor);
+		registerBlock(vendor_frame);
+		registerBlock(packager);
+		registerBlock(standing_ucsign);
+		registerBlock(wall_ucsign);
+		registerBlock(power_transmitter);
+		registerBlock(power_receiver);
+		registerBlock(atm);
+	}
+
+	private void registerBlock(Block block) {
+		GameRegistry.register(block.setRegistryName(block.getUnlocalizedName().substring(5)));
+		GameRegistry.register(new ItemBlock(block), block.getRegistryName());
 	}
 
 	public void registerItems() {
