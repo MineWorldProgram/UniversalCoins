@@ -41,7 +41,9 @@ public class BlockSignal extends BlockProtected {
 	@Override
 	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand,
 			ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (player.isSneaking()) {
+		if (hand != EnumHand.MAIN_HAND) {
+			return false;
+		} else  if (player.isSneaking()) {
 			TileEntity te = world.getTileEntity(pos);
 			if (te != null && te instanceof TileSignal) {
 				TileSignal tentity = (TileSignal) te;
