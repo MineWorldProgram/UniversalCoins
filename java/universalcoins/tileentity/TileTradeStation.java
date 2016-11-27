@@ -392,7 +392,7 @@ public class TileTradeStation extends TileProtected implements IInventory, ISide
 			onCoinModeButtonPressed();
 		} else if (buttonId <= TradeStationGUI.idLBagButton) {
 			onRetrieveButtonsPressed(buttonId, shiftPressed);
-		} else if (buttonId == TradeStationGUI.idAccessModeButton && blockOwner.matches(playerName)) {
+		} else if (buttonId == TradeStationGUI.idAccessModeButton && playerId != null && playerId.equals(blockOwnerId)) {
 			publicAccess ^= true;
 		}
 		update();

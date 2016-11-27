@@ -719,7 +719,7 @@ public class TileVendor extends TileProtected implements IInventory, ISidedInven
 
 	public void sendServerUpdateMessage() {
 		UniversalCoins.snw.sendToServer(
-				new UCVendorServerMessage(pos.getX(), pos.getY(), pos.getZ(), itemPrice, blockOwner, infiniteMode));
+				new UCVendorServerMessage(pos.getX(), pos.getY(), pos.getZ(), itemPrice, blockOwner, blockOwnerId, infiniteMode));
 	}
 
 	public void readFromNBT(NBTTagCompound tagCompound) {

@@ -3,6 +3,7 @@ package universalcoins;
 import net.minecraft.command.ICommandManager;
 import net.minecraft.command.ServerCommandManager;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.server.MinecraftServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
@@ -105,6 +106,7 @@ public class UniversalCoins {
 	public static Integer shopMaxPrice;
 
 	public static SimpleNetworkWrapper snw;
+	public static MinecraftServer server;
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
@@ -306,6 +308,7 @@ public class UniversalCoins {
 
 	@EventHandler
 	public void serverStart(FMLServerStartingEvent event) {
+		server = event.getServer();
 		ICommandManager command = event.getServer().getCommandManager();
 		ServerCommandManager manager = (ServerCommandManager) command;
 		manager.registerCommand(new UCCommand());

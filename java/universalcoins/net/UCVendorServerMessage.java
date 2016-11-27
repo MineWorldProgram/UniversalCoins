@@ -15,20 +15,24 @@ import universalcoins.tileentity.TileVendor;
 import universalcoins.tileentity.TileVendorBlock;
 import universalcoins.tileentity.TileVendorFrame;
 
+import java.util.UUID;
+
 public class UCVendorServerMessage implements IMessage, IMessageHandler<UCVendorServerMessage, IMessage> {
 	private int x, y, z, itemPrice;
 	private String blockOwner;
+	private UUID blockOwnerId;
 	private boolean infinite;
 
 	public UCVendorServerMessage() {
 	}
 
-	public UCVendorServerMessage(int x, int y, int z, int price, String blockOwner, boolean infinite) {
+	public UCVendorServerMessage(int x, int y, int z, int price, String blockOwner, UUID blockOwnerId, boolean infinite) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 		this.itemPrice = price;
 		this.blockOwner = blockOwner;
+		this.blockOwnerId = blockOwnerId;
 		this.infinite = infinite;
 	}
 
@@ -80,6 +84,7 @@ public class UCVendorServerMessage implements IMessage, IMessageHandler<UCVendor
 			TileVendor tEntity = (TileVendor) tileEntity;
 			tEntity.itemPrice = message.itemPrice;
 			tEntity.blockOwner = message.blockOwner;
+			tEntity.blockOwnerId = message.blockOwnerId;
 			tEntity.infiniteMode = message.infinite;
 		}
 		if (tileEntity instanceof TileVendorFrame) {

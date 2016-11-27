@@ -1,12 +1,19 @@
 package universalcoins.tileentity;
 
+import com.mojang.authlib.GameProfile;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import universalcoins.UniversalCoins;
+
+import java.util.Objects;
+import java.util.UUID;
 
 public class TileProtected extends TileEntity {
 
+	public UUID blockOwnerId = null;
+	public UUID playerId = null;
 	public String blockOwner = "none";
 	public String playerName = "";
 	public boolean inUse = false;
@@ -24,10 +31,34 @@ public class TileProtected extends TileEntity {
 		} catch (Throwable ex2) {
 			playerName = "none";
 		}
+		if (tagCompound.hasUniqueId("playerId")) {
+			playerId = tagCompound.getUniqueId("playerId");
+		} else if (!playerName.isEmpty() && !playerName.equals("none")) {
+			playerId = findUUID(playerName);
+			if (playerId != null)
+				markDirty();
+		}
 		try {
 			blockOwner = tagCompound.getString("blockOwner");
 		} catch (Throwable ex2) {
 			blockOwner = "none";
+		}
+		if(tagCompound.hasUniqueId("blockOwnerId")) {
+			blockOwnerId = tagCompound.getUniqueId("blockOwnerId");
+		} else if (!blockOwner.isEmpty() && !blockOwner.equals("none")) {
+			blockOwnerId = findUUID(blockOwner);
+			if (blockOwnerId != null)
+				markDirty();
+		}
+	}
+
+	public final UUID findUUID(String playerName) {
+		GameProfile profile = UniversalCoins.server.getPlayerProfileCache().getGameProfileForUsername(playerName);
+		if (profile == null) {
+			System.err.println("Failed to find the "+playerName+"'s UUID! POS:"+pos+" DIM:"+getWorld());
+			return null;
+		} else {
+			return profile.getId();
 		}
 	}
 
@@ -37,6 +68,16 @@ public class TileProtected extends TileEntity {
 		tagCompound.setBoolean("InUse", inUse);
 		tagCompound.setString("playerName", playerName);
 		tagCompound.setString("blockOwner", blockOwner);
+		if(playerId != null) {
+			tagCompound.setUniqueId("playerId", playerId);
+		} else {
+			tagCompound.removeTag("playerId");
+		}
+		if(blockOwnerId != null) {
+			tagCompound.setUniqueId("blockOwnerId", blockOwnerId);
+		} else {
+			tagCompound.removeTag("blockOwnerId");
+		}
 		return tagCompound;
 	}
 

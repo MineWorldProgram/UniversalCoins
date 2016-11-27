@@ -24,7 +24,7 @@ public class BlockProtected extends BlockContainer {
 	public void onBlockClicked(World world, BlockPos pos, EntityPlayer player) {
 		if (UniversalCoins.blockProtection) {
 			TileProtected tileEntity = (TileProtected) world.getTileEntity(pos);
-			if (!player.capabilities.isCreativeMode && !tileEntity.blockOwner.equals(player.getName())) {
+			if (!player.capabilities.isCreativeMode && !player.getUniqueID().equals(tileEntity.blockOwnerId)) {
 				this.setBlockUnbreakable();
 			}
 		}
@@ -39,6 +39,7 @@ public class BlockProtected extends BlockContainer {
 		if (te instanceof TileProtected) {
 			TileProtected tentity = (TileProtected) te;
 			tentity.inUse = false;
+			tentity.blockOwnerId = player.getUniqueID();
 			tentity.blockOwner = player.getName();
 		}
 	}

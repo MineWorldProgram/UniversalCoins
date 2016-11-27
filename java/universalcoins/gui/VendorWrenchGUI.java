@@ -89,6 +89,7 @@ public class VendorWrenchGUI extends GuiContainer {
 		if (button.id == idApplyButton) {
 			String blockOwner = blockOwnerField.getText();
 			try {
+				tileEntity.blockOwnerId = tileEntity.findUUID(blockOwner);
 				tileEntity.blockOwner = blockOwner;
 			} catch (Throwable ex2) {
 				// fail silently?

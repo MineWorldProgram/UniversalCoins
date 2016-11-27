@@ -71,6 +71,7 @@ public class BlockVendor extends BlockProtected {
 				return true;
 			} else {
 				tentity.updateEntity();
+				tentity.playerId = player.getUniqueID();
 				tentity.playerName = player.getName();
 				tentity.inUse = true;
 				tentity.updateCoinsForPurchase();
@@ -102,6 +103,9 @@ public class BlockVendor extends BlockProtected {
 			tagCompound.setInteger("UserCoinSum", te.userCoinSum);
 			tagCompound.setInteger("ItemPrice", te.itemPrice);
 			tagCompound.setString("BlockOwner", te.blockOwner);
+			if (te.blockOwnerId != null) {
+				tagCompound.setUniqueId("BlockOwnerId", te.blockOwnerId);
+			}
 			tagCompound.setBoolean("Infinite", te.infiniteMode);
 			stack.setTagCompound(tagCompound);
 			return stack;

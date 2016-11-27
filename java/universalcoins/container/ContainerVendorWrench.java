@@ -8,10 +8,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import universalcoins.tileentity.TileVendor;
 import universalcoins.tileentity.TileVendorFrame;
 
+import java.util.Objects;
+import java.util.UUID;
+
 public class ContainerVendorWrench extends Container {
 	private TileVendor tileEntity;
 	private TileVendorFrame tileEntity2;
 	private String lastBlockOwner;
+	private UUID lastBlockOwnerId;
 	private Boolean lastInfinite;
 
 	public ContainerVendorWrench(InventoryPlayer inventory, TileVendor tEntity) {
@@ -33,13 +37,15 @@ public class ContainerVendorWrench extends Container {
 	public void detectAndSendChanges() {
 		super.detectAndSendChanges();
 
-		if (this.lastBlockOwner != this.tileEntity.blockOwner
+		if (!Objects.equals(this.lastBlockOwner, this.tileEntity.blockOwner)
+				|| !Objects.equals(this.lastBlockOwnerId, this.tileEntity.blockOwnerId)
 				|| this.lastInfinite != this.tileEntity.infiniteMode) {
 			// update
 			tileEntity.updateTE();
 		}
 
 		this.lastBlockOwner = this.tileEntity.blockOwner;
+		this.lastBlockOwnerId = this.tileEntity.blockOwnerId;
 		this.lastInfinite = this.tileEntity.infiniteMode;
 
 	}

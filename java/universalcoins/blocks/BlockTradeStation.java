@@ -39,12 +39,14 @@ public class BlockTradeStation extends BlockProtected {
 			}
 			if (((TileTradeStation) tileEntity).publicAccess) {
 				player.openGui(UniversalCoins.instance, 0, world, pos.getX(), pos.getY(), pos.getZ());
+				((TileTradeStation) tileEntity).playerId = player.getUniqueID();
 				((TileTradeStation) tileEntity).playerName = player.getName();
 				((TileTradeStation) tileEntity).inUse = true;
 				return true;
 			} else {
-				if (((TileTradeStation) tileEntity).blockOwner.matches(player.getName())) {
+				if (player.getUniqueID().equals(((TileTradeStation) tileEntity).blockOwnerId)) {
 					player.openGui(UniversalCoins.instance, 0, world, pos.getX(), pos.getY(), pos.getZ());
+					((TileTradeStation) tileEntity).playerId = player.getUniqueID();
 					((TileTradeStation) tileEntity).playerName = player.getName();
 					((TileTradeStation) tileEntity).inUse = true;
 					return true;

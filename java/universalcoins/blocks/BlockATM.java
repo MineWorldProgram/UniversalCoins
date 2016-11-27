@@ -59,6 +59,7 @@ public class BlockATM extends BlockProtected {
 			return;
 		TileEntity te = world.getTileEntity(pos);
 		if (te != null) {
+			((TileProtected) world.getTileEntity(pos)).blockOwnerId = player.getCommandSenderEntity().getUniqueID();
 			((TileProtected) world.getTileEntity(pos)).blockOwner = player.getCommandSenderEntity().getName();
 		}
 	}

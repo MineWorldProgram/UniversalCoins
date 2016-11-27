@@ -62,6 +62,9 @@ public class BlockVendorFrame extends BlockProtected {
 			tagCompound.setInteger("UserCoinSum", te.userCoinSum);
 			tagCompound.setInteger("ItemPrice", te.itemPrice);
 			tagCompound.setString("BlockOwner", te.blockOwner);
+			if (te.blockOwnerId != null) {
+				tagCompound.setUniqueId("BlockOwnerId", te.blockOwnerId);
+			}
 			tagCompound.setBoolean("Infinite", te.infiniteMode);
 
 			stack.setTagCompound(tagCompound);
@@ -113,6 +116,7 @@ public class BlockVendorFrame extends BlockProtected {
 				return true;
 			} else {
 				tentity.updateTE();
+				tentity.playerId = player.getUniqueID();
 				tentity.playerName = player.getName();
 				tentity.inUse = true;
 				player.openGui(UniversalCoins.instance, 0, world, pos.getX(), pos.getY(), pos.getZ());
