@@ -44,6 +44,13 @@ public class UCVendorServerMessage implements IMessage, IMessageHandler<UCVendor
 		buf.writeInt(itemPrice);
 		ByteBufUtils.writeUTF8String(buf, blockOwner);
 		buf.writeBoolean(infinite);
+		if (blockOwnerId != null) {
+			buf.writeBoolean(true);
+			buf.writeLong(blockOwnerId.getMostSignificantBits());
+			buf.writeLong(blockOwnerId.getLeastSignificantBits());
+		} else {
+			buf.writeBoolean(false);
+		}
 	}
 
 	@Override
@@ -54,6 +61,11 @@ public class UCVendorServerMessage implements IMessage, IMessageHandler<UCVendor
 		this.itemPrice = buf.readInt();
 		this.blockOwner = ByteBufUtils.readUTF8String(buf);
 		this.infinite = buf.readBoolean();
+		if (buf.readBoolean()) {
+			blockOwnerId = new UUID(buf.readLong(), buf.readLong());
+		} else {
+			blockOwnerId = null;
+		}
 	}
 
 	@Override
