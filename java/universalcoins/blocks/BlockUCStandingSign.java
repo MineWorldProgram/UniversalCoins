@@ -1,6 +1,7 @@
 package universalcoins.blocks;
 
 import java.util.Random;
+import java.util.UUID;
 
 import net.minecraft.block.BlockStandingSign;
 import net.minecraft.block.state.IBlockState;
@@ -57,8 +58,8 @@ public class BlockUCStandingSign extends BlockStandingSign {
 	
 	@Override
 	public void onBlockClicked(World world, BlockPos pos, EntityPlayer player) {
-		String ownerName = ((TileUCSign) world.getTileEntity(pos)).blockOwner;
-		if (player.getDisplayName().equals(ownerName)) {
+		UUID owner = ((TileUCSign) world.getTileEntity(pos)).blockOwnerId;
+		if (player.getUniqueID().equals(owner)) {
 			this.setHardness(1.0F);
 		} else {
 			this.setHardness(-1.0F);
@@ -71,7 +72,7 @@ public class BlockUCStandingSign extends BlockStandingSign {
 		TileEntity tileEntity = world.getTileEntity(pos);
 		if (tileEntity != null && tileEntity instanceof TileUCSign) {
 			TileUCSign tentity = (TileUCSign) tileEntity;
-			if (player.getName().matches(tentity.blockOwner)) {
+			if (player.getUniqueID().equals(tentity.blockOwnerId)) {
 				player.openGui(UniversalCoins.instance, 0, world, pos.getX(), pos.getY(), pos.getZ());
 			}
 			return true;
@@ -81,12 +82,12 @@ public class BlockUCStandingSign extends BlockStandingSign {
 
 	@Override
 	public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest) {
-		String ownerName = ((TileUCSign) world.getTileEntity(pos)).blockOwner;
+		UUID owner = ((TileUCSign) world.getTileEntity(pos)).blockOwnerId;
 		if (player.capabilities.isCreativeMode) {
 			super.removedByPlayer(state, world, pos, player, willHarvest);
 			return true;
 		}
-		if (player.getDisplayName().equals(ownerName) && !world.isRemote) {
+		if (player.getUniqueID().equals(owner) && !world.isRemote) {
 			super.removedByPlayer(state, world, pos, player, willHarvest);
 			return true;
 		}

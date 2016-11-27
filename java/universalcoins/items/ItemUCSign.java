@@ -60,6 +60,7 @@ public class ItemUCSign extends ItemSign {
 				TileEntity tileentity = worldIn.getTileEntity(pos);
 
 				if (tileentity instanceof TileUCSign) {
+					((TileUCSign) tileentity).blockOwnerId = playerIn.getUniqueID();
 					((TileUCSign) tileentity).blockOwner = playerIn.getName();
 					playerIn.openGui(UniversalCoins.instance, 0, worldIn, pos.getX(), pos.getY(), pos.getZ());
 				}

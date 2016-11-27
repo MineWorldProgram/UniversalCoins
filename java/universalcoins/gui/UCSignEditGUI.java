@@ -44,6 +44,7 @@ public class UCSignEditGUI extends GuiScreen {
 	public void onGuiClosed() {
 		if (mc.thePlayer != null) {
 			Keyboard.enableRepeatEvents(false);
+			tileSign.blockOwnerId = this.mc.thePlayer.getUniqueID();
 			tileSign.blockOwner = this.mc.thePlayer.getName();
 			tileSign.sendServerUpdateMessage();
 			this.tileSign.setEditable(true);

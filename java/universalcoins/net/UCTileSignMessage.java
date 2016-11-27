@@ -16,17 +16,20 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import universalcoins.tileentity.TileUCSign;
 
+import java.util.UUID;
+
 public class UCTileSignMessage implements IMessage, IMessageHandler<UCTileSignMessage, IMessage> {
 	private int xCoord;
 	private int yCoord;
 	private int zCoord;
 	private ITextComponent signText0, signText1, signText2, signText3;
 	private String blockOwner;
+	private UUID blockOwnerId;
 
 	public UCTileSignMessage() {
 	}
 
-	public UCTileSignMessage(int x, int y, int z, ITextComponent[] signText, String blockOwner) {
+	public UCTileSignMessage(int x, int y, int z, ITextComponent[] signText, String blockOwner, UUID blockOwnerId) {
 		this.xCoord = x;
 		this.yCoord = y;
 		this.zCoord = z;
@@ -35,6 +38,7 @@ public class UCTileSignMessage implements IMessage, IMessageHandler<UCTileSignMe
 		this.signText2 = signText[2];
 		this.signText3 = signText[3];
 		this.blockOwner = blockOwner;
+		this.blockOwnerId = blockOwnerId;
 	}
 
 	@Override
@@ -47,6 +51,7 @@ public class UCTileSignMessage implements IMessage, IMessageHandler<UCTileSignMe
 		this.signText2 = new TextComponentString(ByteBufUtils.readUTF8String(buf));
 		this.signText3 = new TextComponentString(ByteBufUtils.readUTF8String(buf));
 		this.blockOwner = ByteBufUtils.readUTF8String(buf);
+		this.blockOwnerId = new UUID(buf.readLong(), buf.readLong());
 	}
 
 	@Override
@@ -59,6 +64,8 @@ public class UCTileSignMessage implements IMessage, IMessageHandler<UCTileSignMe
 		ByteBufUtils.writeUTF8String(buf, signText2.getUnformattedText());
 		ByteBufUtils.writeUTF8String(buf, signText3.getUnformattedText());
 		ByteBufUtils.writeUTF8String(buf, this.blockOwner);
+		buf.writeLong(blockOwnerId.getMostSignificantBits());
+		buf.writeLong(blockOwnerId.getLeastSignificantBits());
 	}
 
 	@Override
@@ -92,6 +99,7 @@ public class UCTileSignMessage implements IMessage, IMessageHandler<UCTileSignMe
 			tentity.signText[1] = message.signText1;
 			tentity.signText[2] = message.signText2;
 			tentity.signText[3] = message.signText3;
+			tentity.blockOwnerId = message.blockOwnerId;
 			tentity.blockOwner = message.blockOwner;
 		}
 	}

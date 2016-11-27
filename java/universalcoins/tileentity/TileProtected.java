@@ -52,14 +52,22 @@ public class TileProtected extends TileEntity {
 		}
 	}
 
-	public final UUID findUUID(String playerName) {
-		GameProfile profile = UniversalCoins.server.getPlayerProfileCache().getGameProfileForUsername(playerName);
+	public static GameProfile findProfile(String playerName) {
+		return UniversalCoins.server.getPlayerProfileCache().getGameProfileForUsername(playerName);
+	}
+
+	public static UUID findUUID(String playerName, TileEntity tile) {
+		GameProfile profile = findProfile(playerName);
 		if (profile == null) {
-			System.err.println("Failed to find the "+playerName+"'s UUID! POS:"+pos+" DIM:"+getWorld());
+			System.err.println("Failed to find the "+playerName+"'s UUID! POS:"+tile.getPos()+" DIM:"+tile.getWorld());
 			return null;
 		} else {
 			return profile.getId();
 		}
+	}
+
+	public final UUID findUUID(String playerName) {
+		return findUUID(playerName, this);
 	}
 
 	@Override

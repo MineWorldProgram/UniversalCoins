@@ -15,9 +15,12 @@ import universalcoins.UniversalCoins;
 import universalcoins.net.UCSignServerMessage;
 import universalcoins.net.UCTileSignMessage;
 
+import java.util.UUID;
+
 public class TileUCSign extends TileEntitySign {
 
 	public String blockOwner = "";
+	public UUID blockOwnerId;
 
 	@Override
 	public void readFromNBT(NBTTagCompound tagCompound) {
@@ -32,6 +35,11 @@ public class TileUCSign extends TileEntitySign {
 		} catch (Throwable ex2) {
 			blockOwner = "";
 		}
+		if (tagCompound.hasUniqueId("blockOwnerId")) {
+			blockOwnerId = tagCompound.getUniqueId("blockOwnerId");
+		} else if (!blockOwner.isEmpty()) {
+			blockOwnerId = TileProtected.findUUID(blockOwner, this);
+		}
 	}
 
 	public NBTTagCompound writeToNBT(NBTTagCompound tagCompound) {
@@ -41,6 +49,11 @@ public class TileUCSign extends TileEntitySign {
 			tagCompound.setString("Text" + (i + 1), s);
 		}
 		tagCompound.setString("blockOwner", blockOwner);
+		if(blockOwnerId != null) {
+			tagCompound.setUniqueId("blockOwnerId", blockOwnerId);
+		} else {
+			tagCompound.removeTag("blockOwnerId");
+		}
 
 		return tagCompound;
 	}
