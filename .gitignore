@@ -1,9 +1,8 @@
 resources/assets/universalcoins/textures/entity/Thumbs.db
 .idea/
-.gradle
+.gradle/
 UniversalCoins.ipr
 UniversalCoins.iws
 build/
-gradle/
 out/
 run/
